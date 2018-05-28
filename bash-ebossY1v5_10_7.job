@@ -1,0 +1,23 @@
+#!/bin/bash/
+source activate nbodykit
+export OU=$HOME/analyses/eboss/ebossY1v5_10_7/v01_04/
+if [ ! -d "$OU" ];then
+    echo "Creating the $OU directory"
+    mkdir $OU
+fi
+echo "$OU directory exists!"
+
+
+python make_nofz.py &
+echo "n(z)s are ready ... "
+
+
+for l in 1 2 3
+do
+    #python ebossv01.py $l $OU
+    #python ebossv02.py $l $OU
+    #python ebossv03.py $l $OU
+    #python ebossv04.py $l $OU
+    python ebossv05.py $l
+done
+echo "DONE!"
