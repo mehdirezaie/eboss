@@ -31,6 +31,13 @@ comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
 
+labels = ['hpgaiastardens', 'hpebv', \
+          'hppsfdepth_r','hppsfdepth_g', 'hppsfdepth_z', \
+          'hpgaldepth_r', 'hpgaldepth_g', 'hpgaldepth_z', \
+          'hppsfsize_r','hppsfsize_g', 'hppsfsize_z',\
+          'hpnobs_r', 'hpnobs_g', 'hpnobs_z',\
+          'hpgaldepth_rg', 'hpgaldepth_rz', 'hpgaldepth_gz', 'dE(B-V)',
+         'mjd_r', 'mjd_g', 'mjd_z']
 # greetings
 print('Hi from %d'%rank)
 if rank == 0:print('There are %d workers'%size)
@@ -59,7 +66,7 @@ if rank == 0:
     ap.add_argument('--hpfit',     default='none')
     ap.add_argument('--oudir',     default='./output/')
     ap.add_argument('--axfit',     nargs='*', type=int,\
-                                   default=[i for i in range(17)])
+                                   default=[i for i in range(21)])
     ap.add_argument('--nbin',      default=20)
     ap.add_argument('--nside',     default=256)
     ap.add_argument('--lmax',     default=512)
@@ -144,7 +151,7 @@ if (ns.hpfit != 'none'):
        feats     = feat['features'].shape
        featl1    = featl[:-3].split(', ')
        featlb    = [b for b in featl[-3:]]
-       labels    = featl1[:2] + [m.strip()+'-'+r for m in featl1[2:] for r in featlb]
+       #labels    = featl1[:2] + [m.strip()+'-'+r for m in featl1[2:] for r in featlb]
        mask1     = hp.read_map(ns.mask,   verbose=False).astype('bool')
        hpmask1   = np.in1d(feat['hpix'], np.argwhere(mask1).flatten())
        galmap    = hp.read_map(ns.galmap, verbose=False)
@@ -216,7 +223,7 @@ if (ns.nnbar != 'none'):
        feats = feat['features'].shape
        featl1 = featl[:-3].split(', ')
        featlb = [b for b in featl[-3:]]
-       labels = featl1[:2] + [m.strip()+'-'+r for m in featl1[2:] for r in featlb]
+       #labels = featl1[:2] + [m.strip()+'-'+r for m in featl1[2:] for r in featlb]
        #
        # read mask, galaxy and random map
        mask1   = hp.read_map(ns.mask,   verbose=False).astype('bool')
@@ -244,7 +251,7 @@ if (ns.nnbar != 'none'):
        #
        # plot for nnbar vs. sys.
        #
-       fig, ax = plt.subplots(ncols=3, nrows=6, sharey=True, figsize=(10, 10))
+       fig, ax = plt.subplots(ncols=3, nrows=7, sharey=True, figsize=(10, 11.7))
        plt.subplots_adjust(wspace=0.02, hspace=0.5)
        ax = ax.flatten()
        nnbar_res = {'nnbar':[], 'xlabels':labels}
@@ -298,7 +305,7 @@ if ns.clfile != 'none':
        feats     = feat['features'].shape
        featl1    = featl[:-3].split(', ')
        featlb    = [b for b in featl[-3:]]
-       labels    = featl1[:2] + [m.strip()+'-'+r for m in featl1[2:] for r in featlb]
+       #labels    = featl1[:2] + [m.strip()+'-'+r for m in featl1[2:] for r in featlb]
        mask1     = hp.read_map(ns.mask,   verbose=False).astype('bool')
        mask2     = np.zeros_like(mask1).astype('bool')
        mask2[feat['hpix']] = True
@@ -412,7 +419,7 @@ if ns.corfile != 'none':
        feats     = feat['features'].shape
        featl1    = featl[:-3].split(', ')
        featlb    = [b for b in featl[-3:]]
-       labels    = featl1[:2] + [m.strip()+'-'+r for m in featl1[2:] for r in featlb]
+       #labels    = featl1[:2] + [m.strip()+'-'+r for m in featl1[2:] for r in featlb]
        mask1     = hp.read_map(ns.mask,   verbose=False).astype('bool')
        mask2     = np.zeros_like(mask1).astype('bool')
        mask2[feat['hpix']] = True
