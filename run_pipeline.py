@@ -31,13 +31,21 @@ comm = MPI.COMM_WORLD
 size = comm.Get_size()
 rank = comm.Get_rank()
 
-labels = ['hpgaiastardens', 'hpebv', \
-          'hppsfdepth_r','hppsfdepth_g', 'hppsfdepth_z', \
-          'hpgaldepth_r', 'hpgaldepth_g', 'hpgaldepth_z', \
-          'hppsfsize_r','hppsfsize_g', 'hppsfsize_z',\
-          'hpnobs_r', 'hpnobs_g', 'hpnobs_z',\
-          'hpgaldepth_rg', 'hpgaldepth_rz', 'hpgaldepth_gz', 'dE(B-V)',
-         'mjd_r', 'mjd_g', 'mjd_z']
+# labels = ['hpgaiastardens', 'hpebv', \
+#           'hppsfdepth_r','hppsfdepth_g', 'hppsfdepth_z', \
+#           'hpgaldepth_r', 'hpgaldepth_g', 'hpgaldepth_z', \
+#           'hppsfsize_r','hppsfsize_g', 'hppsfsize_z',\
+#           'hpnobs_r', 'hpnobs_g', 'hpnobs_z',\
+#           'hpgaldepth_rg', 'hpgaldepth_rz', 'hpgaldepth_gz', 'dE(B-V)',
+#          'mjd_r', 'mjd_g', 'mjd_z']
+
+labels = ['debv_lenz_sfd','loghii',
+              'hpgaiastardens', 'hpebv',
+              'hppsfdepth_r', 'hppsfdepth_g',
+              'hppsfdepth_z', 'hpgaldepth_r',
+              'hpgaldepth_g', 'hpgaldepth_z',
+              'hppsfsize_r', 'hppsfsize_g',
+              'hppsfsize_z']
 # greetings
 print('Hi from %d'%rank)
 if rank == 0:print('There are %d workers'%size)
@@ -66,7 +74,7 @@ if rank == 0:
     ap.add_argument('--hpfit',     default='none')
     ap.add_argument('--oudir',     default='./output/')
     ap.add_argument('--axfit',     nargs='*', type=int,\
-                                   default=[i for i in range(21)])
+                                   default=[i for i in range(13)])
     ap.add_argument('--nbin',      default=20)
     ap.add_argument('--nside',     default=256)
     ap.add_argument('--lmax',     default=512)
@@ -257,7 +265,7 @@ if (ns.nnbar != 'none'):
        nnbar_res = {'nnbar':[], 'xlabels':labels}
        #
        # compute nnbar vs. systematics
-       for i in range(feats[1]):
+       for i in range(feats.shape[1]):
            minx, maxx =  feat['features'][:,i].min(),feat['features'][:,i].max()
            bins  = np.linspace(minx, maxx, ns.nbin)
            log += 'sys-{:2d} {:20s} : min : {:13.6e} max : {:13.6e}\n'\

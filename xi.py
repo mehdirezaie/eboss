@@ -11,6 +11,9 @@ import numpy as np
 from   counter import paircount
 from   time    import time
 import healpy as hp
+from tools import makedelta
+
+
 
 def split_jackknife(theta, phi, weight, delta, sysm, njack=20):
     f = weight.sum() // njack
@@ -297,10 +300,12 @@ class XI_simple(object):
     def __init__(self, elgmap, ranmap, select_fun, mask):
         self.nside = hp.get_nside(elgmap)
         # set up the delta
-        delta = np.zeros(elgmap.size)
-        randc = ranmap * select_fun
-        sf    = (elgmap[mask].sum() / randc[mask].sum())
-        delta[mask] = elgmap[mask] / randc[mask] / sf - 1
+        #delta = np.zeros(elgmap.size)
+        #randc = ranmap * select_fun
+        #sf    = (elgmap[mask].sum() / randc[mask].sum())
+        #delta[mask] = elgmap[mask] / randc[mask] / sf - 1
+        delta = makedelta(elgmap, ranmap, mask, select_fun=select_fun, is_sys=False)
+
         #
         # weight
         w = ranmap[mask]
@@ -385,9 +390,10 @@ if __name__ == '__main__':
         os.makedirs(ns.oudir)
     #
     # check if selection function is given
-    if not ns.selection in ['none', 'None', 'NONE']:
+    #if not ns.selection in ['none', 'None', 'NONE']:
+    if os.path.isfile(ns.selection):
         log += 'selection function : {}\n'.format(ns.selection)
-        select_fun_i = hp.read_map(ns.selection)
+        select_fun_i = hp.read_map(ns.selection, verbose=False)
         select_fun   = check_nside(select_fun_i, ns.nside) # check nside
     else:
         log += 'uniform selection function is used!!!\n'
@@ -397,18 +403,18 @@ if __name__ == '__main__':
     # it computes the cross correlation
     if not ns.sysmap in ['none', 'None', 'NONE']:
         log += 'computing the cross-correlation against {}\n'.format(ns.sysmap)
-        sysm_i = hp.read_map(ns.sysmap)
+        sysm_i = hp.read_map(ns.sysmap, verbose=False)
         sysm   = check_nside(sysm_i, ns.nside)
     else:
         log += 'computing the auto correlation\n'
         sysm   = None
     #
     # read galaxy, random and mask maps
-    galm_i = hp.read_map(ns.galmap)
+    galm_i = hp.read_map(ns.galmap, verbose=False)
     galm   = check_nside(galm_i, ns.nside)
-    ranm_i = hp.read_map(ns.ranmap)
+    ranm_i = hp.read_map(ns.ranmap, verbose=False)
     ranm   = check_nside(ranm_i, ns.nside)
-    mask_i = hp.read_map(ns.mask)
+    mask_i = hp.read_map(ns.mask, verbose=False)
     mask   = check_nside(mask_i, ns.nside).astype('bool') # should be boolean
     #
     #
