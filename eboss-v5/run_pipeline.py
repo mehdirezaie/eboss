@@ -155,10 +155,10 @@ if (ns.hpfit != 'none'):
        #
        # read phot. attributes file, must have hpix, features
        feat, h   = ft.read(ns.photattrs, header=True, lower=True)
-       featl     = h.get('FEATURES')
+       #featl     = h.get('FEATURES')
        feats     = feat['features'].shape
-       featl1    = featl[:-3].split(', ')
-       featlb    = [b for b in featl[-3:]]
+       #featl1    = featl[:-3].split(', ')
+       #featlb    = [b for b in featl[-3:]]
        #labels    = featl1[:2] + [m.strip()+'-'+r for m in featl1[2:] for r in featlb]
        mask1     = hp.read_map(ns.mask,   verbose=False).astype('bool')
        hpmask1   = np.in1d(feat['hpix'], np.argwhere(mask1).flatten())
@@ -169,8 +169,8 @@ if (ns.hpfit != 'none'):
        log  = 2*'\n'
        log += '{:15s}{:40s}{:15s}\n'.format(15*'=',\
               'Fit a multivariate on Ngal-sys',15*'=')
-       log += '{:15s} : \n'.format('HEADER of PHOT attrs')
-       log += '{}\n'.format(h)
+       #log += '{:15s} : \n'.format('HEADER of PHOT attrs')
+       #log += '{}\n'.format(h)
        log += '{:35s} : {}\n'.format('Phot attrs names', labels)
        log += '\n'
        log += '{:35s} : {}\n'.format('Shape of the phot. attrs', feats)
@@ -227,11 +227,8 @@ if (ns.nnbar != 'none'):
        #
        # read phot. attributes file, must have hpix, features
        feat, h = ft.read(ns.photattrs, header=True, lower=True)
-       featl  = h.get('FEATURES')
+       #featl  = h.get('FEATURES')
        feats = feat['features'].shape
-       featl1 = featl[:-3].split(', ')
-       featlb = [b for b in featl[-3:]]
-       #labels = featl1[:2] + [m.strip()+'-'+r for m in featl1[2:] for r in featlb]
        #
        # read mask, galaxy and random map
        mask1   = hp.read_map(ns.mask,   verbose=False).astype('bool')
@@ -248,8 +245,8 @@ if (ns.nnbar != 'none'):
            log += '{:35s} : {}\n'.format('Computing NNbar with wmap', ns.wmap)
        #
        # log
-       log += '{:15s} : \n'.format('HEADER of PHOT attrs')
-       log += '{}\n'.format(h)
+       #log += '{:15s} : \n'.format('HEADER of PHOT attrs')
+       #log += '{}\n'.format(h)
        log += '{:35s} : {}\n'.format('Phot attrs names', labels)
        log += '\n'
        log += '{:35s} : {}\n'.format('Shape of the phot. attrs', feats)
@@ -265,7 +262,7 @@ if (ns.nnbar != 'none'):
        nnbar_res = {'nnbar':[], 'xlabels':labels}
        #
        # compute nnbar vs. systematics
-       for i in range(feats.shape[1]):
+       for i in range(feats[1]):
            minx, maxx =  feat['features'][:,i].min(),feat['features'][:,i].max()
            bins  = np.linspace(minx, maxx, ns.nbin)
            log += 'sys-{:2d} {:20s} : min : {:13.6e} max : {:13.6e}\n'\
@@ -309,11 +306,8 @@ if ns.clfile != 'none':
        #
        # read phot. attributes file, must have hpix, features
        feat, h   = ft.read(ns.photattrs, header=True, lower=True)
-       featl     = h.get('FEATURES')
+       #featl     = h.get('FEATURES')
        feats     = feat['features'].shape
-       featl1    = featl[:-3].split(', ')
-       featlb    = [b for b in featl[-3:]]
-       #labels    = featl1[:2] + [m.strip()+'-'+r for m in featl1[2:] for r in featlb]
        mask1     = hp.read_map(ns.mask,   verbose=False).astype('bool')
        mask2     = np.zeros_like(mask1).astype('bool')
        mask2[feat['hpix']] = True
@@ -342,8 +336,8 @@ if ns.clfile != 'none':
        hpix = feat['hpix']
        #
        # log
-       log += '{:15s} : \n'.format('HEADER of PHOT attrs')
-       log += '{}\n'.format(h)
+       #log += '{:15s} : \n'.format('HEADER of PHOT attrs')
+       #log += '{}\n'.format(h)
        log += '{:35s} : {}\n'.format('Phot attrs names', labels)
        log += '\n'
        log += '{:35s} : {}\n'.format('Shape of the phot. attrs', feats)
@@ -423,11 +417,8 @@ if ns.corfile != 'none':
        #
        # read phot. attributes file, must have hpix, features
        feat, h   = ft.read(ns.photattrs, header=True, lower=True)
-       featl     = h.get('FEATURES')
+       #featl     = h.get('FEATURES')
        feats     = feat['features'].shape
-       featl1    = featl[:-3].split(', ')
-       featlb    = [b for b in featl[-3:]]
-       #labels    = featl1[:2] + [m.strip()+'-'+r for m in featl1[2:] for r in featlb]
        mask1     = hp.read_map(ns.mask,   verbose=False).astype('bool')
        mask2     = np.zeros_like(mask1).astype('bool')
        mask2[feat['hpix']] = True
@@ -457,8 +448,8 @@ if ns.corfile != 'none':
        hpix = feat['hpix']
        #
        # log
-       log += '{:15s} : \n'.format('HEADER of PHOT attrs')
-       log += '{}\n'.format(h)
+       #log += '{:15s} : \n'.format('HEADER of PHOT attrs')
+       #log += '{}\n'.format(h)
        log += '{:35s} : {}\n'.format('Phot attrs names', labels)
        log += '\n'
        log += '{:35s} : {}\n'.format('Shape of the phot. attrs', feats)

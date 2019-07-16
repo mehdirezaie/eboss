@@ -7,6 +7,13 @@ python xi.py --galmap /Volumes/TimeMachine/data/eboss/eBOSS_DR7/eBOSSDR7.256.fit
 Jan 13: run on mjd masks
 python xi.py --galmap /Volumes/TimeMachine/data/eboss/eBOSS_DR7/eBOSSDR7.256.fits --ranmap /Volumes/TimeMachine/data/eboss/eBOSS_DR7/random.256.fits --njack 0 --nside 256 --selection none --oudir /Volumes/TimeMachine/data/eboss/eBOSS_DR7/clustering/ --ouname ebossdr7xi_2pc_uni_mjdg_lt_56750_gt_56400 --mask /Volumes/TimeMachine/data/eboss/eBOSS_DR7/hpmask.mjdg.lt.56750.gt.56400.hp256.fits
 '''
+import os
+import sys
+HOME = os.getenv('HOME')
+sys.path.append(HOME + '/github/DESILSS')
+
+
+
 import numpy as np
 from   counter import paircount
 from   time    import time

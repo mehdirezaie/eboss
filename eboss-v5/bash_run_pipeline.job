@@ -1,0 +1,130 @@
+#!/bin/bash
+
+#SBATCH -q regular
+#SBATCH -t 00:05:00
+#SBATCH -N 1
+#SBATCH -J clcros-n
+#SBATCH -o clcrosnb-%j.out 
+#SBATCH -C haswell
+#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=mehdirezaie1990@gmail.com
+#
+#
+#  run it with
+# sbatch --array=1-100 bash_process_dr5NERSC.job
+#
+#
+#
+#module load python/3.6-anaconda-4.4 
+#source activate craympi
+
+source activate py3p6
+export SCRATCH=/Volumes/TimeMachine/data/eboss/v4/
+
+# mask, sysmaps, Nran
+export mask=${SCRATCH}mask.hp256.fits
+export mask21=${SCRATCH}mask_eboss21.hp256.fits
+export mask22=${SCRATCH}mask_eboss22.hp256.fits
+export mask23=${SCRATCH}mask_eboss23.hp256.fits
+export mask25=${SCRATCH}mask_eboss25.hp256.fits
+
+
+export feat=${SCRATCH}ngal_features.fits
+export nran=${SCRATCH}fracgood.hp256.fits
+export glmp=${SCRATCH}ELG.hp256.fits
+
+export oudr=${SCRATCH}results/
+export oudr_mult=${oudr}regression/mult-all/
+export oudr_nn=${oudr}regression/nn/
+export oudr_cl=${oudr}clustering/
+export oudr_ab=${oudr}ablation/
+export nsid=256
+export lmax=512
+
+
+#export split=r
+#export glmp5=${SCRATCH}ELG.hp256.5.${split}.npy
+# linear / quad fit
+#time python ./fit.py --input ${glmp5} --output ${oudr_mult} --split
+#echo 'running ablation on ' $glmp5
+#time mpirun --oversubscribe -np 5 python run_ablationall.py --data ${glmp5} --output $oudr_ab --index 0 13 --log v4.log;
+#echo 'running the NN fit on ' $glmp5
+# w ablation
+#time mpirun --oversubscribe --np 5 python validate-ab.py --input ${glmp5} --output ${oudr_nn}nn-${split}-ab/ --ablationlog ${oudr_ab}v4.log.npy 
+# w/o ablation
+#time mpirun --oversubscribe --np 5 python validate-ab.py --input ${glmp5} --output ${oudr_nn}nn-${split}/ --ablationlog None
+#export split=s
+#export glmp5=${SCRATCH}ELG.hp256.5.${split}.npy
+#echo $glmp5
+#time mpirun --oversubscribe --np 5 python validate-ab.py --input ${glmp5} --output ${oudr_nn}nn-${split}/ --ablationlog None
+
+
+
+# CLUSTERING
+#
+# 
+# LINEAR, NO weight, Quadratic
+#
+#for lb in uni lin quad;
+#do
+#  echo working on $lb
+#  export wmap=${oudr_mult}${lb}-weights.hp256.fits
+#  # C_l & NNbar
+#  export clnm=cl_${lb}
+#  export nnbar=nnbar_${lb}
+#  time mpirun --oversubscribe -np 3 python ./run_pipeline.py --galmap ${glmp} --ranmap ${nran} --photattrs ${feat} --wmap ${wmap} --mask ${mask} --clfile ${clnm} --nnbar ${nnbar} --oudir ${oudr_cl} --verbose
+# xi 
+# export xinm=xi_${lb}
+# time python xi.py --galmap ${glmp} --ranmap ${nran} --njack 0 --nside 256 --selection ${wmap} --oudir ${oudr_cl} --ouname $xinm --mask ${mask}
+#done
+
+#
+#  NN random split, spatial split
+#  r is done
+#for lb in r s r-ab;
+#do
+#  echo working on $lb
+#  export wmap=${oudr_nn}nn-${lb}/nn-weights.hp256.fits
+#  # C_l & NNbar
+#  export clnm=cl_nn${lb}
+#  export nnbar=nnbar_nn${lb}
+#  time mpirun --oversubscribe -np 3 python ./run_pipeline.py --galmap ${glmp} --ranmap ${nran} --photattrs ${feat} --wmap ${wmap} --mask ${mask} --clfile ${clnm} --nnbar ${nnbar} --oudir ${oudr_cl} --verbose
+#  # xi 
+#  export xinm=xi_nn${lb}
+#  time python xi.py --galmap ${glmp} --ranmap ${nran} --njack 0 --nside 256 --selection ${wmap} --oudir ${oudr_cl} --ouname $xinm --mask ${mask}
+#done
+
+
+for ii in 1 2 3 5;
+ do
+ export mask=${SCRATCH}mask_eboss2${ii}.hp256.fits
+ for lb in uni lin quad;
+   do
+     echo working on $lb
+     export wmap=${oudr_mult}${lb}-weights.hp256.fits
+     # C_l & NNbar
+     export clnm=cl_${lb}_eboss2${ii}
+     export nnbar=nnbar_${lb}_eboss2${ii}
+     time mpirun --oversubscribe -np 3 python ./run_pipeline.py --galmap ${glmp} --ranmap ${nran} --photattrs ${feat} --wmap ${wmap} --mask ${mask} --clfile ${clnm} --nnbar ${nnbar} --oudir ${oudr_cl} --verbose
+     # xi 
+     export xinm=xi_${lb}_eboss2${ii}
+     time python xi.py --galmap ${glmp} --ranmap ${nran} --njack 0 --nside 256 --selection ${wmap} --oudir ${oudr_cl} --ouname $xinm --mask ${mask}
+        echo $mask $xinm $nnbar $clnm
+    done
+    for lb in r s r-ab;
+      do
+        echo working on $lb
+        export wmap=${oudr_nn}nn-${lb}/nn-weights.hp256.fits
+        # C_l & NNbar
+        export clnm=cl_nn${lb}_eboss2${ii}
+        export nnbar=nnbar_nn${lb}_eboss2${ii}
+        time mpirun --oversubscribe -np 3 python ./run_pipeline.py --galmap ${glmp} --ranmap ${nran} --photattrs ${feat} --wmap ${wmap} --mask ${mask} --clfile ${clnm} --nnbar ${nnbar} --oudir ${oudr_cl} --verbose
+        #  # xi 
+        export xinm=xi_nn${lb}_eboss2${ii}
+        time python xi.py --galmap ${glmp} --ranmap ${nran} --njack 0 --nside 256 --selection ${wmap} --oudir ${oudr_cl} --ouname $xinm --mask ${mask}
+        echo $mask $xinm $nnbar $clnm
+   done
+    
+done
+
+
