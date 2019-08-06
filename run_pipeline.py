@@ -34,7 +34,7 @@ labels = ['sky_g', 'sky_r', 'sky_i', 'sky_z',
         'depth_g', 'depth_r', 'depth_i','depth_z',
         'psf_g','psf_r', 'psf_i', 'psf_z',
         'w1_med', 'w1_covmed', 
-        'star_density', 'ebv', 'airmass'] 
+        'star_density', 'ebv', 'airmass', 'loghi', 'run'] 
 # greetings
 print('Hi from %d'%rank)
 if rank == 0:
