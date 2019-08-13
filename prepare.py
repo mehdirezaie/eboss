@@ -109,7 +109,7 @@ class combinemaps(object):
     def __init__(self, galf, ranf, sysmapf):
         self.galm = hp.read_map(galf, verbose=False)
         self.ranm = hp.read_map(ranf, verbose=False)
-        self.sysm = ft.read(sysmapf, lower=True)
+        self.sysm = ft.read(sysmapf,  lower=True)
         self.cols = self.sysm.dtype.names
         print('attributes : {}'.format(self.cols))
         
