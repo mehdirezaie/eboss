@@ -19,12 +19,13 @@ ns = ap.parse_args()
 
 # read input
 data = ft.read(ns.input_path)
+
+
 wmap = hp.read_map(ns.input_wnn, verbose=False)
 nside = hp.get_nside(wmap)
 
 # find data healpix indices
 data_hpix = radec2hpix(nside, data['RA'], data['DEC'])
-
 wmap_data = wmap[data_hpix]
 
 #low = wmap_data <= 0.001
@@ -32,7 +33,8 @@ wmap_data = wmap[data_hpix]
 wmap_data = wmap_data.clip(0.5, 2.0)
 assert np.all(wmap_data > 0.0)
 data['WEIGHT_SYSTOT'] = 1./wmap_data
-
+    
+    
 if os.path.isfile(ns.output_path):
     if ns.overwrite:
         print('file exists, but will be rewritten!')
