@@ -1,12 +1,24 @@
 #!/bin/bash
-source ~/.bash_profile
+if [ -f "~/.bash_profile" ]
+then
+	source ~/.bash_profile
+fi
+
+if [ $HOST == "lakme" ]
+then 
+    eval "$(/home/mehdi/miniconda3/bin/conda shell.bash hook)"
+    DATA=${HOME}/data
+fi
 conda activate py3p6
 
 # codes
-ablation=/Users/rezaie/github/LSSutils/scripts/analysis/ablation_tf_old.py
-multfit=/Users/rezaie/github/LSSutils/scripts/analysis/mult_fit.py
-nnfit=/Users/rezaie/github/LSSutils/scripts/analysis/nn_fit_tf_old.py
-docl=/Users/rezaie/github/LSSutils/scripts/analysis/run_pipeline.py
+
+ablation=${HOME}/github/LSSutils/scripts/analysis/ablation_tf_old.py
+multfit=${HOME}/github/LSSutils/scripts/analysis/mult_fit.py
+nnfit=${HOME}/github/LSSutils/scripts/analysis/nn_fit_tf_old.py
+docl=${HOME}/github/LSSutils/scripts/analysis/run_pipeline.py
+elnet=${HOME}/github/LSSutils/scripts/analysis/elnet_fit.py
+
 
 # ================ RUNS ====================
 
@@ -26,10 +38,10 @@ then
             lmax=512  
             mycap=$cap.$zcut
             echo $mycap
-            glmp5=/Volumes/TimeMachine/data/eboss/v6/qso.${mycap}.hp.${nside}.r.npy
+            glmp5=${DATA}/eboss/v6/qso.${mycap}.hp.${nside}.r.npy
             #du -h $glmp5
-            oudr_ab=/Volumes/TimeMachine/data/eboss/v6/results_${mycap}/ablationv2/
-            oudr_r=/Volumes/TimeMachine/data/eboss/v6/results_${mycap}/regression/
+            oudr_ab=${DATA}/eboss/v6/results_${mycap}/ablationv2/
+            oudr_r=${DATA}/eboss/v6/results_${mycap}/regression/
             log_ab=v6.log
             nn1=nn_abv2
             nn3=nn_p
@@ -47,6 +59,13 @@ then
             mpirun -np 5 python $nnfit --input $glmp5 --output ${oudr_r}${nn3}/ --nside $nside --axfit $axfit      
           done
         done
+elif [ $1 == "elnet" ]
+then
+    for cap in NGC SGC
+    do
+        echo $1 on $cap
+        python $elnet $cap
+    done
 elif [ $1 == "clustering" ]
 then 
         echo "run clustering ... "
@@ -54,12 +73,14 @@ then
         for cap in NGC SGC
         do
              nmesh=512
-             nside=512    
+             nside=256
+             lmax=512
+             axfit='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16'
              capl=$(echo "$cap" | tr '[:upper:]' '[:lower:]')
              catlab=eBOSS_QSO_clustering
-             indir=/Volumes/TimeMachine/data/eboss/v6/    
-             wdir=/Volumes/TimeMachine/data/eboss/v6/results_${capl}/regression/
-             oudir=/Volumes/TimeMachine/data/eboss/v6/results_${capl}.all/clustering/
+             indir=${DATA}/eboss/v6/    
+             wdir=${DATA}/eboss/v6/results_${capl}.all/regression/
+             oudir=${DATA}/eboss/v6/results_${capl}.all/clustering/
              random=${indir}${catlab}_${cap}_v6.ran.fits
              if [ -d $oudir ]
              then
@@ -70,28 +91,42 @@ then
              fi
              # compute the p(k)
              #for wtag in v6 v6_wnn_ab v6_wnn_p v6_wnnz_ab v6_wnnz_p
-             for wtag in v6_wnn_abv2 v6_wnnz_abv2
+             for wtag in v6 v6_wnn_abv2 v6_wnnz_abv2 v6_wnn_p v6_wnnz_p v6_zelnet
              do 
+		 echo $wtag  $cap    
+                 # 3D stuff
                  galcat=${indir}${catlab}_${cap}_${wtag}.dat.fits
-                 ouname1=${oudir}pk_${wtag}_${nmesh}.json         
-                 if [ $wtag = 'v6' ] 
+                 ouname1=${oudir}pk_${wtag}_${nmesh}.json       
+                 
+                 # 2D stuff
+                 galmap=${indir}${catlab}_${cap}_${wtag}.dat.hp256.fits
+                 ranmap=${indir}fracgood.${capl}.all.hp.256.fits
+                 drfeat=${indir}ngal_features_${capl}.all.fits
+                 maskc=${indir}mask.${capl}.all.hp.256.fits
+                if [ $wtag = 'v6' ] 
                  then 
                      #du -h $galcat             
                      ouname2=${oudir}pk_${wtag}_wsystot_${nmesh}.json             
-                     echo $galcat $ouname1 $ouname2
-                     mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname1 --nmesh $nmesh
-                     mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname2 --nmesh $nmesh --sys_tot
-                 else
-                     echo $galcat $ouname1
-                     mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname1 --nmesh $nmesh --sys_tot
-                     du -h $galcat
+                     #echo $galcat $ouname1 $ouname2
+                     #mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname2 --nmesh $nmesh
                  fi
+                 # 3D st
+                 #echo $galcat $ouname1
+                 #mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname1 --nmesh $nmesh --sys_tot
+                 # 2D
+                 mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --clfile cl_${cap}_${wtag} --nnbar nnbar_${cap}_${wtag} --corfile xi_${cap}_${wtag} --nside $nside --lmax $lmax --axfit $axfit
              done
+	     mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --wmap none --clsys cl_sys --corsys xi_sys --nside ${nside} --lmax $lmax --axfit $axfit
         done
 else
     echo "nothing ...."
 fi
 
+
+# Z elnet
+#   886  mpirun -np 4 python run_pk.py --galaxy_path /home/mehdi/data/eboss/v6_elnet/eBOSS_QSO_clustering_NGC_v6_zelnet.dat.fits --random_path /home/mehdi/data/eboss/v6_elnet/eBOSS_QSO_clustering_NGC_v6.ran.fits --output_path /home/mehdi/data/eboss/v6_elnet/pk_zelnet_512.json --systot
+#   887  mpirun -np 4 python run_pk.py --galaxy_path /home/mehdi/data/eboss/v6_elnet/eBOSS_QSO_clustering_NGC_v6_zelnet.dat.fits --random_path /home/mehdi/data/eboss/v6_elnet/eBOSS_QSO_clustering_NGC_v6.ran.fits --output_path /home/mehdi/data/eboss/v6_elnet/pk_zelnet_512.json --sys_tot
+#   888  mpirun -np 4 python run_pk.py --galaxy_path /home/mehdi/data/eboss/v6_elnet/eBOSS_QSO_clustering_SGC_v6_zelnet.dat.fits --random_path /home/mehdi/data/eboss/v6_elnet/eBOSS_QSO_clustering_SGC_v6.ran.fits --output_path /home/mehdi/data/eboss/v6_elnet/pk_SGC_zelnet_512.json --sys_tot
 
 
 #

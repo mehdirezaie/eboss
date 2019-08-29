@@ -405,6 +405,7 @@ if ns.clfile != 'none':
     comm.Barrier()
     my_cl = comm.gather(my_cl, root=0)
     if rank == 0:
+        my_cl  = [[cli] for cli in my_cl if len(cli)!=0]
         all_cl = np.concatenate(my_cl, axis=0)
         colors = plt.cm.jet
         plt.figure()
@@ -504,6 +505,7 @@ if ns.clsys != 'none':
     comm.Barrier()
     my_cl = comm.gather(my_cl, root=0)
     if rank == 0:
+        my_cl  = [[cli] for cli in my_cl if len(cli)!=0]
         all_cl = np.concatenate(my_cl, axis=0)
         colors = plt.cm.jet
         plt.figure()
@@ -617,6 +619,7 @@ if ns.corfile != 'none':
     my_xi = comm.gather(my_xi, root=0)
     if rank == 0:
         #print(my_xi, type(my_xi), len(my_xi))
+        my_xi  = [[myxi] for myxi in my_xi if len(myxi)!=0]
         all_xi = np.concatenate(my_xi, axis=0)
         All_xi = dict(cross=all_xi, auto=xi_auto, clabels=[labels[n] for n in ns.axfit])
         np.save(ns.oudir  + ns.corfile, All_xi)
@@ -696,6 +699,7 @@ if ns.corsys != 'none':
     my_xi = comm.gather(my_xi, root=0)
     if rank == 0:
         #print(my_xi, type(my_xi), len(my_xi))
+        my_xi  = [[myxi] for myxi in my_xi if len(myxi)!=0]
         all_xi = np.concatenate(my_xi, axis=0)
         All_xi = dict(cross=all_xi, auto=None, clabels=[labels[n] for n in ns.axfit])
         np.save(ns.oudir  + ns.corsys, All_xi)
