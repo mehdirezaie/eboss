@@ -90,10 +90,9 @@ then
                  mkdir -p $oudir
              fi
              # compute the p(k)
-             #for wtag in v6 v6_wnn_ab v6_wnn_p v6_wnnz_ab v6_wnnz_p
-             for wtag in v6 v6_wnn_abv2 v6_wnnz_abv2 v6_wnn_p v6_wnnz_p v6_zelnet
+             for wtag in v6 v6_wnn_abv2 v6_wnnz_abv2 v6_wnn_p v6_wnnz_p v6_zelnet v6_wosys
              do 
-		 echo $wtag  $cap    
+                 echo $wtag  $cap    
                  # 3D stuff
                  galcat=${indir}${catlab}_${cap}_${wtag}.dat.fits
                  ouname1=${oudir}pk_${wtag}_${nmesh}.json       
@@ -103,20 +102,61 @@ then
                  ranmap=${indir}fracgood.${capl}.all.hp.256.fits
                  drfeat=${indir}ngal_features_${capl}.all.fits
                  maskc=${indir}mask.${capl}.all.hp.256.fits
-                if [ $wtag = 'v6' ] 
+                 if [ $wtag = 'v6' ] 
                  then 
                      #du -h $galcat             
-                     ouname2=${oudir}pk_${wtag}_wsystot_${nmesh}.json             
+                     #ouname2=${oudir}pk_${wtag}_wsystot_${nmesh}.json             
                      #echo $galcat $ouname1 $ouname2
                      #mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname2 --nmesh $nmesh
                  fi
                  # 3D st
                  #echo $galcat $ouname1
                  #mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname1 --nmesh $nmesh --sys_tot
-                 # 2D
-                 mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --clfile cl_${cap}_${wtag} --nnbar nnbar_${cap}_${wtag} --corfile xi_${cap}_${wtag} --nside $nside --lmax $lmax --axfit $axfit
+                 # 2D aug 30:  
+		 mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --clfile cl_${cap}_${wtag} --nnbar nnbar_${cap}_${wtag} --nside $nside --lmax $lmax --axfit $axfit --corfile xi_${cap}_${wtag}
              done
-	     mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --wmap none --clsys cl_sys --corsys xi_sys --nside ${nside} --lmax $lmax --axfit $axfit
+             mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --wmap none --clsys cl_sys --corsys xi_sys --nside ${nside} --lmax $lmax --axfit $axfit
+        done
+elif [ $1 == "zclustering" ]
+then 
+        echo "run 2D clustering ... "
+        # 101 min
+        for cap in NGC SGC
+        do
+             nmesh=512
+             nside=256
+             lmax=512
+             axfit='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16'
+             capl=$(echo "$cap" | tr '[:upper:]' '[:lower:]')
+             catlab=eBOSS_QSO_clustering
+             indir=${DATA}/eboss/v6/    
+             wdir=${DATA}/eboss/v6/results_${capl}.all/regression/
+             oudir=${DATA}/eboss/v6/results_${capl}.all/clustering/
+             random=${indir}${catlab}_${cap}_v6.ran.fits
+             if [ -d $oudir ]
+             then
+                 echo $oudir exists
+             else
+                 echo creating ... $oudir
+                 mkdir -p $oudir
+             fi
+             for wtag in v6 v6_wnn_abv2 v6_wnnz_abv2 v6_wnn_p v6_wnnz_p v6_zelnet v6_wosys
+             do 
+                 for zi in 0.8 1.1 1.3 1.5 1.7 1.9 
+                 do
+                     echo $wtag  $cap $zi
+                     # 2D stuff
+                     wtag2=${wtag}_z${zi}
+                     galmap=${indir}${catlab}_${cap}_${wtag2}.dat.hp256.fits
+                     ranmap=${indir}fracgood.${capl}.all.hp.256.fits
+                     drfeat=${indir}ngal_features_${capl}.all.fits
+                     maskc=${indir}mask.${capl}.all.hp.256.fits
+                     
+                     du -h $galmap
+                     # 2D aug 30:  --corfile xi_${cap}_${wtag}
+                     mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --clfile cl_${cap}_${wtag2} --nnbar nnbar_${cap}_${wtag2} --corfile xi_${cap}_${wtag2} --nside $nside --lmax $lmax --axfit $axfit 
+                 done
+             done
         done
 else
     echo "nothing ...."
