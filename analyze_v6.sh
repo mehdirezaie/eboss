@@ -104,7 +104,7 @@ then
                  maskc=${indir}mask.${capl}.all.hp.256.fits
                  if [ $wtag = 'v6' ] 
                  then 
-                     #du -h $galcat             
+                     du -h $galcat             
                      #ouname2=${oudir}pk_${wtag}_wsystot_${nmesh}.json             
                      #echo $galcat $ouname1 $ouname2
                      #mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname2 --nmesh $nmesh
@@ -113,13 +113,14 @@ then
                  #echo $galcat $ouname1
                  #mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname1 --nmesh $nmesh --sys_tot
                  # 2D aug 30:  
-		 mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --clfile cl_${cap}_${wtag} --nnbar nnbar_${cap}_${wtag} --nside $nside --lmax $lmax --axfit $axfit --corfile xi_${cap}_${wtag}
+                 # mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --clfile cl_${cap}_${wtag} --nnbar nnbar_${cap}_${wtag} --nside $nside --lmax $lmax --axfit $axfit --corfile xi_${cap}_${wtag}
+                python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --nnbar nnbar_${cap}_${wtag} --nbin 6 --axfit $axfit
              done
-             mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --wmap none --clsys cl_sys --corsys xi_sys --nside ${nside} --lmax $lmax --axfit $axfit
+             #mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --wmap none --clsys cl_sys --corsys xi_sys --nside ${nside} --lmax $lmax --axfit $axfit
         done
 elif [ $1 == "zclustering" ]
 then 
-        echo "run 2D clustering ... "
+        echo "run 2D z-clustering ... "
         # 101 min
         for cap in NGC SGC
         do
@@ -153,8 +154,9 @@ then
                      maskc=${indir}mask.${capl}.all.hp.256.fits
                      
                      du -h $galmap
-                     # 2D aug 30:  --corfile xi_${cap}_${wtag}
-                     mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --clfile cl_${cap}_${wtag2} --nnbar nnbar_${cap}_${wtag2} --corfile xi_${cap}_${wtag2} --nside $nside --lmax $lmax --axfit $axfit 
+                     # 2D aug 30:  
+                     #mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --clfile cl_${cap}_${wtag2} --nnbar nnbar_${cap}_${wtag2} --corfile xi_${cap}_${wtag2} --nside $nside --lmax $lmax --axfit $axfit 
+                     python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --nnbar nnbar_${cap}_${wtag2} --nbin 5 --axfit $axfit                     
                  done
              done
         done
