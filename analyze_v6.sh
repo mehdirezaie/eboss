@@ -70,7 +70,8 @@ elif [ $1 == "clustering" ]
 then 
         echo "run clustering ... "
         # 28 min
-        for cap in NGC SGC
+        for cap in NGC
+        #for cap in NGC SGC
         do
              nmesh=512
              nside=256
@@ -90,7 +91,8 @@ then
                  mkdir -p $oudir
              fi
              # compute the p(k)
-             for wtag in v6 v6_wnn_abv2 v6_wnnz_abv2 v6_wnn_p v6_wnnz_p v6_zelnet v6_wosys
+             #for wtag in v6 v6_wnn_abv2 v6_wnnz_abv2 v6_wnn_p v6_wnnz_p v6_zelnet v6_wosys
+             for wtag in v6_icut
              do 
                  echo $wtag  $cap    
                  # 3D stuff
@@ -102,19 +104,19 @@ then
                  ranmap=${indir}fracgood.${capl}.all.hp.256.fits
                  drfeat=${indir}ngal_features_${capl}.all.fits
                  maskc=${indir}mask.${capl}.all.hp.256.fits
-                 if [ $wtag = 'v6' ] 
+                 if [ $wtag == "v6" ] || [ $wtag == "v6_icut" ]
                  then 
                      du -h $galcat             
-                     #ouname2=${oudir}pk_${wtag}_wsystot_${nmesh}.json             
-                     #echo $galcat $ouname1 $ouname2
-                     #mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname2 --nmesh $nmesh
+                     ouname2=${oudir}pk_${wtag}_wsystot_${nmesh}.json             
+                     echo $galcat $ouname1 $ouname2
+                     mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname2 --nmesh $nmesh
                  fi
                  # 3D st
-                 #echo $galcat $ouname1
-                 #mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname1 --nmesh $nmesh --sys_tot
+                 echo $galcat $ouname1
+                 mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname1 --nmesh $nmesh --sys_tot
                  # 2D aug 30:  
                  # mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --clfile cl_${cap}_${wtag} --nnbar nnbar_${cap}_${wtag} --nside $nside --lmax $lmax --axfit $axfit --corfile xi_${cap}_${wtag}
-                python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --nnbar nnbar_${cap}_${wtag} --nbin 6 --axfit $axfit
+                #python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --nnbar nnbar_${cap}_${wtag} --nbin 6 --axfit $axfit
              done
              #mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --wmap none --clsys cl_sys --corsys xi_sys --nside ${nside} --lmax $lmax --axfit $axfit
         done
@@ -156,7 +158,7 @@ then
                      du -h $galmap
                      # 2D aug 30:  
                      #mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --clfile cl_${cap}_${wtag2} --nnbar nnbar_${cap}_${wtag2} --corfile xi_${cap}_${wtag2} --nside $nside --lmax $lmax --axfit $axfit 
-                     python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --nnbar nnbar_${cap}_${wtag2} --nbin 5 --axfit $axfit                     
+                     #python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --nnbar nnbar_${cap}_${wtag2} --nbin 5 --axfit $axfit                     
                  done
              done
         done

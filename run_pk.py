@@ -101,7 +101,7 @@ fkp  = nb.FKPCatalog(data, randoms, nbar='NZ')
 mesh = fkp.to_mesh(Nmesh=nmesh, fkp_weight='WEIGHT_FKP', comp_weight='WEIGHT', window='tsc')
 
 # compute 
-r = nb.ConvolvedFFTPower(mesh, poles=[0,2,4], dk=0.01, kmin=0.0)
+r = nb.ConvolvedFFTPower(mesh, poles=[0,2,4], dk=0.001, kmin=0.0)
 
 # save
 r.save(output_path)
