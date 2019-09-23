@@ -92,7 +92,8 @@ then
              fi
              # compute the p(k)
              #for wtag in v6 v6_wnn_abv2 v6_wnnz_abv2 v6_wnn_p v6_wnnz_p v6_zelnet v6_wosys
-             for wtag in v6_icut
+             #for wtag in v6_icut
+             for wtag in v6_perdata
              do 
                  echo $wtag  $cap    
                  # 3D stuff
@@ -109,13 +110,13 @@ then
                      du -h $galcat             
                      ouname2=${oudir}pk_${wtag}_wsystot_${nmesh}.json             
                      echo $galcat $ouname1 $ouname2
-                     mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname2 --nmesh $nmesh
+                     #mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname2 --nmesh $nmesh
                  fi
                  # 3D st
                  echo $galcat $ouname1
-                 mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname1 --nmesh $nmesh --sys_tot
+                 #mpirun -np 2 python run_pk.py --galaxy_path $galcat --random_path $random --output_path $ouname1 --nmesh $nmesh --sys_tot
                  # 2D aug 30:  
-                 # mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --clfile cl_${cap}_${wtag} --nnbar nnbar_${cap}_${wtag} --nside $nside --lmax $lmax --axfit $axfit --corfile xi_${cap}_${wtag}
+                 mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --clfile cl_${cap}_${wtag} --nnbar nnbar_${cap}_${wtag} --nside $nside --lmax $lmax --axfit $axfit --corfile xi_${cap}_${wtag} --nbin 6
                 #python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --nnbar nnbar_${cap}_${wtag} --nbin 6 --axfit $axfit
              done
              #mpirun -np 16 python $docl --galmap $galmap --ranmap $ranmap --photattrs $drfeat --mask $maskc --oudir $oudir --verbose --wmap none --clsys cl_sys --corsys xi_sys --nside ${nside} --lmax $lmax --axfit $axfit
