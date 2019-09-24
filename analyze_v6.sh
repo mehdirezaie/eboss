@@ -59,6 +59,29 @@ then
             mpirun -np 5 python $nnfit --input $glmp5 --output ${oudr_r}${nn3}/ --nside $nside --axfit $axfit      
           done
         done
+
+elif [ $1 == "regression_imagsplit" ] 
+then
+    for cap in NGC
+    do
+        # qso.ngc.0.hp.256.r
+        nside=256
+        capl=$(echo "$cap" | tr '[:upper:]' '[:lower:]')
+        oudr_r=${DATA}/eboss/v6/imag_splits/regression/
+        axfit='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16'
+
+        for sample_id in 0 1 2 3
+        do
+            mycap=${capl}.${sample_id}
+            mult1=mult_${mycap}
+            nn=nn_${mycap}
+            glmp5=${DATA}/eboss/v6/imag_splits/qso.${mycap}.hp.${nside}.r.npy
+            du -h  $glmp5
+            echo $nn $mult1 $mycap
+            mpirun -np 5 python $nnfit --input $glmp5 --output ${oudr_r}${nn}/ --nside $nside --axfit $axfit
+            #python $multfit --input $glmp5 --output ${oudr_r}${mult1}/ --split --nside $nside --axfit $axfit
+        done
+    done
 elif [ $1 == "elnet" ]
 then
     for cap in NGC SGC
