@@ -1,0 +1,25 @@
+map : /Volumes/TimeMachine/data/eboss/v6/results_all/regression/mult_all/lin-weights.hp512.fits  392502 392489
+map : /Volumes/TimeMachine/data/eboss/v6/results_all/regression/mult_all/quad-weights.hp512.fits  392489 392462
+map : /Volumes/TimeMachine/data/eboss/v6/results_all/regression/nn_ab/nn-weights.hp512.fits  392456 392498
+map : /Volumes/TimeMachine/data/eboss/v6/results_all/regression/nn_p/nn-weights.hp512.fits  392454 392490
+total number of weights 4
+plain footprint 392449
+saving /Volumes/TimeMachine/data/eboss/v6/mask.all.cut.hp.512.fits
+map : /Volumes/TimeMachine/data/eboss/v6/results_ngc/regression/mult_all/lin-weights.hp512.fits  237220 237220
+map : /Volumes/TimeMachine/data/eboss/v6/results_ngc/regression/mult_all/quad-weights.hp512.fits  237220 237219
+map : /Volumes/TimeMachine/data/eboss/v6/results_ngc/regression/nn_ab/nn-weights.hp512.fits  237219 237220
+map : /Volumes/TimeMachine/data/eboss/v6/results_ngc/regression/nn_p/nn-weights.hp512.fits  237219 237220
+total number of weights 4
+plain footprint 237219
+saving /Volumes/TimeMachine/data/eboss/v6/mask.ngc.cut.hp.512.fits
+map : /Volumes/TimeMachine/data/eboss/v6/results_sgc/regression/mult_all/lin-weights.hp512.fits  155282 155282
+map : /Volumes/TimeMachine/data/eboss/v6/results_sgc/regression/mult_all/quad-weights.hp512.fits  155282 155278
+map : /Volumes/TimeMachine/data/eboss/v6/results_sgc/regression/nn_ab/nn-weights.hp512.fits  155278 155282
+map : /Volumes/TimeMachine/data/eboss/v6/results_sgc/regression/nn_p/nn-weights.hp512.fits  155278 155282
+total number of weights 4
+plain footprint 155278
+saving /Volumes/TimeMachine/data/eboss/v6/mask.sgc.cut.hp.512.fits
+
+real    0m14.054s
+user    0m8.439s
+sys     0m1.202s
