@@ -12,7 +12,7 @@ path2sysmaps  = '/home/mehdi/data/eboss/sysmaps/SDSS_HI_imageprop_nside256.h5'
 import sys
 sys.path.append(path2LSSutils)
 import matplotlib as mpl
-mpl.use('Agg')
+#mpl.use('Agg')
 
 import numpy as np
 from glob import glob
@@ -26,8 +26,134 @@ try:
     import healpy as hp
 except:
     print('Modules not loaded')
+    
+    
+def plot_ablation_selected():
+    from LSSutils.dataviz import ablation_plot_all, get_selected_maps
+    from LSSutils.catalogs.datarelease import cols_eboss_v7_qso as labels
+    fig, ax = plt.subplots(ncols=5, nrows=2, figsize=(30, 12), sharey=True)
+    ax = ax.flatten()
+
+    i = 0
+    for cap in [ 'NGC', 'SGC']: # ngc.all
+        for key in ['0.8', '1.1', '1.4', '1.6', '1.9']:
+            mycap = cap+'_'+key # NGC_0.8
+            get_selected_maps(glob('/home/mehdi/data/eboss/v7/results_'+mycap+'/ablation/v6.log_fold*.npy'),
+                              ['eBOSS '+mycap], labels=labels, ax=ax[i], hold=True)
+            i += 1
+    #plt.savefig('./maps_selected_eboss.pdf', bbox_inches='tight')
+    plt.show()    
+
+def preparev7():
+    from LSSutils.catalogs.datarelease import cols_eboss_v7_qso as my_cols
+    dataframe = pd.read_hdf('/home/mehdi/data/eboss/sysmaps/SDSS_WISE_imageprop_HI_transformed_nside512.h5')
 
 
+    nside     = 512
+    snside    = str(nside)
+
+
+    zcuts = {'0.8': [0.8000000000000000, 1.1423845339193297],
+             '1.1': [1.1423845339193297, 1.3862779004064971],
+             '1.4': [1.3862779004064971, 1.6322502623999630],
+             '1.6': [1.6322502623999630, 1.8829689752636356],
+             '1.9': [1.8829689752636356, 2.2000000000000000]}
+
+    path      = '/home/mehdi/data/eboss/v7/'
+
+    fitname   = lambda x:path + 'ngal_features_'+x+'.hp'+snside+'.fits'
+    hpmask    = lambda x:path + 'mask_'+x+'.hp'+snside+'.fits'
+    fracgood  = lambda x:path + 'frac_'+x+'.hp'+snside+'.fits'
+    fitkfold  = lambda x:path + 'ngal_features_'+x+'.hp'+snside+'.5r.npy'
+    catname   = lambda x:path + 'eBOSS_QSO_clustering_'+x+'_v7.dat.fits'
+    ranname   = lambda x:path + 'eBOSS_QSO_clustering_'+x+'_v7.ran.fits'
+
+
+    hpcatname   = lambda x:path + 'eBOSS_QSO_clustering_'+x+'_v7.hp'+snside+'.dat.fits'
+
+
+    #
+    for cap in ['NGC', 'SGC']:
+        catalogs = []
+        for i,key_i in enumerate(zcuts.keys()):
+            myframe  = dataframe.copy()        
+            mytag     = cap+'_'+key_i     
+            fitname_i = fitname(mytag)
+            catname_i = catname(cap)
+            ranname_i = ranname(cap)        
+            hpcat_i   = hpcatname(mytag)
+            hpmsk_i   = hpmask(mytag)
+            hpfrac_i  = fracgood(mytag)
+            fitkfld_i = fitkfold(mytag)
+
+            #print(mytag, fitname_i, catname_i, ranname_i, hpcat_i,
+            #     hpmsk_i, hpfrac_i, fitkfld_i)        
+            mycat    = cf.EBOSSCAT([catname_i])    
+            mycat.apply_zcut(zcuts[key_i])
+            mycat.project2hp(nside=nside)
+            mycat.writehp(hpcat_i)
+
+            myframe['ngal'] = mycat.galm.astype('f8')
+
+            myran    = cf.EBOSSCAT([ranname_i])    
+            #myran.apply_zcut(zcuts[key_i]) ## do not cut randoms
+            myran.project2hp(nside=nside)
+            myranhp = myran.galm.astype('f8')
+            myranhp[myranhp==0.] = np.nan
+            myframe['nran'] = myranhp
+
+            myfit    = myframe.dropna()
+            #print('shape myfit {} {} {}'.format(cap, key_i, myfit.shape))
+            cf.hd5_2_fits(myfit, my_cols, fitname_i, hpmsk_i, hpfrac_i, fitkfld_i, res=nside, k=5)    
+
+def add_run_HI():
+    import numpy.lib.recfunctions as rfn
+    from LSSutils.extrn.GalacticForegrounds.hpmaps import logHI
+
+    loghi    = logHI(name='/home/mehdi/data/NHI_HPX.fits', nside=512)
+    sdssrun  = hp.read_map('/home/mehdi/data/eboss/sysmaps/sdss_run_mean_512.fits')
+    maps     = ft.read('/home/mehdi/data/eboss/sysmaps/SDSS_WISE_imageprop_nside512.fits')
+    newmaps  = rfn.append_fields(maps, ['LOGHI', 'RUN'], 
+                                   data=[loghi.loghi, sdssrun], 
+                                   dtypes=['>f8', '>f8'], usemask=False)
+    ft.write('/home/mehdi/data/eboss/sysmaps/SDSS_WISE_imageprop_HI_nside512.fits', 
+             newmaps, 
+             clobber=True)    
+
+def plot_systematics(mask=None, return_pd=False):    
+    from scipy.stats import skew
+    systematics = ft.read('/home/mehdi/data/eboss/sysmaps/SDSS_WISE_imageprop_HI_nside512.fits')
+    names = systematics.dtype.names
+    if (mask is None) & ('NRAN' in names):
+        mask = systematics['NRAN'] > 0.0
+    else:
+        raise ValueError('mask required')
+        
+    #
+    nsys  = len(names)
+    nrows = nsys // 3
+    if nsys%3!=0:nrows+=1
+    fig, ax = plt.subplots(ncols=3, nrows=nrows, figsize=(3*6, nrows*5))
+    ax = ax.flatten()
+    dic = {}
+    for i, name_i in enumerate(names):
+        myarray = systematics[name_i]
+        skwness = skew(myarray[mask])
+        if skwness > 1.:
+            if myarray[mask].min() <= 0.0: 
+                myarray += 1.0
+                name_i  = '(1+%s)'%name_i
+            myarray = np.log10(myarray)
+            name_i  = 'log'+name_i
+            
+        if return_pd:dic[name_i] = myarray # return
+        ax[i].hist(myarray[mask], alpha=0.5, histtype='step')
+        print('{0:20s} : {2:5.3e}: {1:}'\
+              .format(name_i, 
+                      np.percentile(myarray[mask], [0, 25, 50, 100]),
+                      skew(myarray[mask])))
+        ax[i].set_xlabel(name_i)    
+    if return_pd:return pd.DataFrame(dic)
 
 def prepare_perdata(metadat, metadat5f, path2sysmaps, mycols, CAP, nside, band, index_b, index_e, field):
     sysmaps = pd.read_hdf(path2sysmaps)
@@ -112,8 +238,6 @@ def project2hp(incat, ouhpmap, nside=256):
     print('read %s wrote %s'%(incat, ouhpmap))
 
 
-
-
 def split_to_imag(path2sysmaps, mycols, CAP, nside, band, index_b, index_e, field):
     sysmaps = pd.read_hdf(path2sysmaps)
     sysmaps = sysmaps[mycols]
@@ -180,34 +304,36 @@ def split_to_imag(path2sysmaps, mycols, CAP, nside, band, index_b, index_e, fiel
         #print(fitname, fitkfld, hpfrac, hpmask, end=3*'\n')
         cf.hd5_2_fits(myfit, mycols, fitname, hpmask, hpfrac, fitkfld, res=nside, k=5)
         print(10*'=', end=3*'\n')
-#
-#  NGC
-#
-CAP       = 'NGC'
-band      = 'i'
-field     = 'MODELMAG'
-index_b   = dict(zip(['u', 'g', 'r', 'i', 'z'], np.arange(5)))
-index_e   = dict(zip(['u', 'g', 'r', 'i', 'z'], [4.239,3.303,2.285,1.698,1.263]))
-nside     = 256
-metadat   = '/home/mehdi/data/eboss/v6/eBOSS_QSO_perdata'+CAP+'.h5'
-metadat5f = '/home/mehdi/data/eboss/v6/eBOSS_QSO_perdata'+CAP+'.5r.npy'
 
-#prepare_perdata(metadat, metadat5f, path2sysmaps, mycols, CAP, nside, band, index_b, index_e, field)
+if __name__ == '__main__':
+    #
+    #  NGC
+    #
+    CAP       = 'NGC'
+    band      = 'i'
+    field     = 'MODELMAG'
+    index_b   = dict(zip(['u', 'g', 'r', 'i', 'z'], np.arange(5)))
+    index_e   = dict(zip(['u', 'g', 'r', 'i', 'z'], [4.239,3.303,2.285,1.698,1.263]))
+    nside     = 256
+    metadat   = '/home/mehdi/data/eboss/v6/eBOSS_QSO_perdata'+CAP+'.h5'
+    metadat5f = '/home/mehdi/data/eboss/v6/eBOSS_QSO_perdata'+CAP+'.5r.npy'
 
-files  = glob('/home/mehdi/data/eboss/v6/results_ngc.all/regression/nn_perdata/fold*/reg-nepoch200-nchain5-batchsize1024units2020-Lrate0.001-l2scale0.0.npz')
-output = '/home/mehdi/data/eboss/v6/results_ngc.all/regression/nn_perdata/weights.npy'
-#read_NN(output, files)
+    #prepare_perdata(metadat, metadat5f, path2sysmaps, mycols, CAP, nside, band, index_b, index_e, field)
 
-
-incat = '/home/mehdi/data/eboss/v6/eBOSS_QSO_clustering_'+CAP+'_v6.dat.fits'
-oucat = '/home/mehdi/data/eboss/v6/eBOSS_QSO_clustering_'+CAP+'_v6_perdata.dat.fits'
-weight = output
-#update_cat(incat, oucat, weight)
-
-incat   = oucat
-#ouhpmap = incat.replace('.fits', '.hp256.fits')
-#project2hp(incat, ouhpmap)
+    files  = glob('/home/mehdi/data/eboss/v6/results_ngc.all/regression/nn_perdata/fold*/reg-nepoch200-nchain5-batchsize1024units2020-Lrate0.001-l2scale0.0.npz')
+    output = '/home/mehdi/data/eboss/v6/results_ngc.all/regression/nn_perdata/weights.npy'
+    #read_NN(output, files)
 
 
-split_to_imag(path2sysmaps, mycols, CAP, nside, band, index_b, index_e, field)
+    incat = '/home/mehdi/data/eboss/v6/eBOSS_QSO_clustering_'+CAP+'_v6.dat.fits'
+    oucat = '/home/mehdi/data/eboss/v6/eBOSS_QSO_clustering_'+CAP+'_v6_perdata.dat.fits'
+    weight = output
+    #update_cat(incat, oucat, weight)
+
+    incat   = oucat
+    #ouhpmap = incat.replace('.fits', '.hp256.fits')
+    #project2hp(incat, ouhpmap)
+
+
+    split_to_imag(path2sysmaps, mycols, CAP, nside, band, index_b, index_e, field)
 
