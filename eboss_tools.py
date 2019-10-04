@@ -27,6 +27,58 @@ try:
 except:
     print('Modules not loaded')
     
+
+def swap_weights_plain():
+    path = '/home/mehdi/data/eboss/v7/'
+    weight = lambda x, y: path + 'results_'+x+'_'+y+'/regression/nn_plain/nn-weights.hp512.fits'
+    def get_weights(CAP):
+        redshifts = ['0.8', '1.1', '1.4', '1.6', '1.9']
+        return dict(zip(redshifts, [weight(CAP,y) for y in redshifts]))
+
+    for ab in ['plain']:    
+        for CAP in ['NGC', 'SGC']:
+            zcuts = {'0.8': [0.8000000000000000, 1.1423845339193297],
+                     '1.1': [1.1423845339193297, 1.3862779004064971],
+                     '1.4': [1.3862779004064971, 1.6322502623999630],
+                     '1.6': [1.6322502623999630, 1.8829689752636356],
+                     '1.9': [1.8829689752636356, 2.2000000000000000]}
+            # z-dependent
+            wtag    = '_'.join(('wnnz', ab))
+            incat   = path + 'eBOSS_QSO_clustering_'+CAP+'_v7.dat.fits'
+            outcat  = path + 'eBOSS_QSO_clustering_'+CAP+'_v7_'+wtag+'.dat.fits'
+            weights = get_weights(CAP)
+
+            print('writing %s'%outcat)
+            mycat   = cf.swap_weights(incat)
+            mycat.run(weights, zcuts)
+            mycat.to_fits(outcat)
+            print(100*'=','\n')        
+    
+def swap_weights():
+    path = '/home/mehdi/data/eboss/v7/'
+    weight = lambda x, y: path + 'results_'+x+'_'+y+'/regression/nn_ablation/nn-weights.hp512.fits'
+    def get_weights(CAP):
+        redshifts = ['0.8', '1.1', '1.4', '1.6', '1.9']
+        return dict(zip(redshifts, [weight(CAP,y) for y in redshifts]))
+
+    for ab in ['ab']:    
+        for CAP in ['NGC', 'SGC']:
+            zcuts = {'0.8': [0.8000000000000000, 1.1423845339193297],
+                     '1.1': [1.1423845339193297, 1.3862779004064971],
+                     '1.4': [1.3862779004064971, 1.6322502623999630],
+                     '1.6': [1.6322502623999630, 1.8829689752636356],
+                     '1.9': [1.8829689752636356, 2.2000000000000000]}
+            # z-dependent
+            wtag    = '_'.join(('wnnz', ab))
+            incat   = path + 'eBOSS_QSO_clustering_'+CAP+'_v7.dat.fits'
+            outcat  = path + 'eBOSS_QSO_clustering_'+CAP+'_v7_'+wtag+'.dat.fits'
+            weights = get_weights(CAP)
+
+            print('writing %s'%outcat)
+            mycat   = cf.swap_weights(incat)
+            mycat.run(weights, zcuts)
+            mycat.to_fits(outcat)
+            print(100*'=','\n')    
     
 def plot_ablation_selected():
     from LSSutils.dataviz import ablation_plot_all, get_selected_maps
