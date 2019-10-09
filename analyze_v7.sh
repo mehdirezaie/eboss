@@ -27,28 +27,31 @@ pk=${HOME}/github/LSSutils/scripts/analysis/run_pk.py
 # 3d Pk - 8x5 min for 6 catalogs
 # 3d pk - 12x4 min for 8 catalogs
 
-if [ $1 == "featselect" ]
+if [ $1 == "regression" ]
 then
     for cap in NGC SGC
     do
-        for zcut in 0.8 1.1 1.4 1.6 1.9
+        #for zcut in 0.8 1.1 1.4 1.6 1.9
+        for zcut in low high
         do
-            nside=512
+            #nside=512
+            nside=256
             lmax=1024
             capzcut=${cap}_${zcut}
             ngal_features_5fold=${DATA}/eboss/v7/ngal_features_$capzcut.hp${nside}.5r.npy
             
             # define out dirs
-            oudir_ab=${DATA}/eboss/v7/results_${capzcut}/ablation/
-            oudir_reg=${DATA}/eboss/v7/results_${capzcut}/regression/            
+            oudir_ab=${DATA}/eboss/v7/results_${capzcut}_${nside}/ablation/
+            oudir_reg=${DATA}/eboss/v7/results_${capzcut}_${nside}/regression/            
             
             # define output names
-            log_ablation=v6.log
+            log_ablation=v7.log
             nn1=nn_ablation
             nn2=nn_plain
             
             #du -h $ngal_features_5fold
-            axfit='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18'
+            #axfit='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18'
+            axfit='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16'
             
             # feature selection
             for rank in 0 1 2 3 4
@@ -57,51 +60,16 @@ then
                 mpirun -np 16 python $ablation --data $ngal_features_5fold \
                              --output $oudir_ab --log $log_ablation \
                              --rank $rank --axfit $axfit
-            done        
-        done
-    done
-fi
-
-if [ $1 == "regression" ]
-then
-    for cap in NGC SGC
-    do
-        for zcut in 0.8 1.1 1.4 1.6 1.9
-        do
-            nside=512
-            lmax=1024
-            capzcut=${cap}_${zcut}
-            ngal_features_5fold=${DATA}/eboss/v7/ngal_features_$capzcut.hp${nside}.5r.npy
-            
-            # define out dirs
-            oudir_ab=${DATA}/eboss/v7/results_${capzcut}/ablation/
-            oudir_reg=${DATA}/eboss/v7/results_${capzcut}/regression/            
-            
-            # define output names
-            log_ablation=v6.log
-            nn1=nn_ablation
-            nn2=nn_plain
-            
-            #du -h $ngal_features_5fold
-            axfit='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18'
-            
-            # feature selection
-            #for rank in 0 1 2 3 4
-            #do
-            #    echo "feature selection on " $rank $capzcut
-            #    mpirun -np 16 python $ablation --data $ngal_features_5fold \
-            #                 --output $oudir_ab --log $log_ablation \
-            #                 --rank $rank --axfit $axfit
-            #done        
-            #mpirun -np 5 python $nnfit --input $ngal_features_5fold \
-            #                    --output ${oudir_reg}${nn1}/ \
-            #                    --ablog ${oudir_ab}${log_ablation} --nside $nside
+            done              
+            echo 'regression on ' $rank $capzcut
             mpirun -np 5 python $nnfit --input $ngal_features_5fold \
-                      --output ${oudir_reg}${nn2}/ --nside $nside --axfit $axfit               
+                               --output ${oudir_reg}${nn1}/ \
+                               --ablog ${oudir_ab}${log_ablation} --nside $nside            
+            mpirun -np 5 python $nnfit --input $ngal_features_5fold \
+                      --output ${oudir_reg}${nn2}/ --nside $nside --axfit $axfit             
         done
     done
 fi
-
 if [ $1 == "3dclustering" ]
 then
     #nmesh=512

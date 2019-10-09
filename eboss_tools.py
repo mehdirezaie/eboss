@@ -96,21 +96,30 @@ def plot_ablation_selected():
     #plt.savefig('./maps_selected_eboss.pdf', bbox_inches='tight')
     plt.show()    
 
-def preparev7():
-    from LSSutils.catalogs.datarelease import cols_eboss_v7_qso as my_cols
-    dataframe = pd.read_hdf('/home/mehdi/data/eboss/sysmaps/SDSS_WISE_imageprop_HI_transformed_nside512.h5')
-
-
-    nside     = 512
+def preparev7(dataname='/home/mehdi/data/eboss/sysmaps/SDSS_WISE_imageprop_HI_transformed_nside512.h5',
+              nside=512, transformed=True):
+    if transformed:
+        from LSSutils.catalogs.datarelease import cols_eboss_v7_qso as my_cols
+    else:
+        from LSSutils.catalogs.datarelease import cols_eboss_v6_qso_simp as my_cols
     snside    = str(nside)
+    dataframe = pd.read_hdf(dataname)
+    #dataframe = pd.read_hdf('/home/mehdi/data/eboss/sysmaps/'\
+    #                        +'SDSS_WISE_imageprop_HI_transformed_nside'+snside+'.h5')
 
 
-    zcuts = {'0.8': [0.8000000000000000, 1.1423845339193297],
-             '1.1': [1.1423845339193297, 1.3862779004064971],
-             '1.4': [1.3862779004064971, 1.6322502623999630],
-             '1.6': [1.6322502623999630, 1.8829689752636356],
-             '1.9': [1.8829689752636356, 2.2000000000000000]}
+    #nside     = 512
 
+
+    # zcuts = {'0.8': [0.8000000000000000, 1.1423845339193297],
+    #          '1.1': [1.1423845339193297, 1.3862779004064971],
+    #          '1.4': [1.3862779004064971, 1.6322502623999630],
+    #          '1.6': [1.6322502623999630, 1.8829689752636356],
+    #          '1.9': [1.8829689752636356, 2.2000000000000000]}
+    
+    zcuts     = {'low':[0.8, 1.508088732762684], 
+                 'high':[1.508088732762684, 2.2]}
+    
     path      = '/home/mehdi/data/eboss/v7/'
 
     fitname   = lambda x:path + 'ngal_features_'+x+'.hp'+snside+'.fits'
@@ -172,12 +181,20 @@ def add_run_HI():
              newmaps, 
              clobber=True)    
 
-def plot_systematics(mask=None, return_pd=False):    
+def plot_systematics(sysmap='/home/mehdi/data/eboss/sysmaps/SDSS_WISE_imageprop_HI_nside512.fits',
+                     mask=None, return_pd=False):    
     from scipy.stats import skew
-    systematics = ft.read('/home/mehdi/data/eboss/sysmaps/SDSS_WISE_imageprop_HI_nside512.fits')
-    names = systematics.dtype.names
+    if sysmap.endswith('.fits'):
+        systematics = ft.read(sysmap)
+        names = systematics.dtype.names        
+    elif sysmap.endswith('.h5'):
+        systematics = pd.read_hdf(sysmap)
+        names = systematics.columns
+        
     if (mask is None) & ('NRAN' in names):
         mask = systematics['NRAN'] > 0.0
+    if (mask is None) & ('depth_g' in names):
+        mask = np.isfinite(systematics['depth_g'])
     else:
         raise ValueError('mask required')
         
