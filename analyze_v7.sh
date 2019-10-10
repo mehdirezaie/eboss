@@ -26,6 +26,17 @@ pk=${HOME}/github/LSSutils/scripts/analysis/run_pk.py
 # regression w.o ablation ~ 5x54 min for 10 datasets 
 # 3d Pk - 8x5 min for 6 catalogs
 # 3d pk - 12x4 min for 8 catalogs
+#
+# regression+ablation 256
+# 8 regression + 4 ablation
+# real    144m18.225s
+# user    2355m57.320s
+# sys     116m15.719s
+
+# clustering for 6
+#real    2m54.783s
+#user    42m57.162s
+#sys     4m1.557s
 
 if [ $1 == "regression" ]
 then
@@ -79,7 +90,8 @@ then
     axfit='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18'
     for cap in NGC SGC
     do
-        for tag in v7 v7_wnnz_ab v7_wnnz_plain 
+        #for tag in v7 v7_wnnz_ab v7_wnnz_plain 
+        for tag in v7 v7_wnnz_plain256
         do
             ouname=${DATA}/eboss/v7/results_${cap}_all/pk_${cap}_${tag}_${nmesh}.json
             galcat=${DATA}/eboss/v7/eBOSS_QSO_clustering_${cap}_${tag}.dat.fits

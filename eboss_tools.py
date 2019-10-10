@@ -53,7 +53,32 @@ def swap_weights_plain():
             mycat.run(weights, zcuts)
             mycat.to_fits(outcat)
             print(100*'=','\n')        
-    
+
+def swap_weights256():
+    path = '/home/mehdi/data/eboss/v7/'
+    weight = lambda x, y: path + 'results_'+x+'_'+y+'_256/regression/nn_plain/nn-weights.hp256.fits'
+    def get_weights(CAP):
+        redshifts = ['low', 'high']
+        return dict(zip(redshifts, [weight(CAP,y) for y in redshifts]))
+
+    for ab in ['plain256']:    
+        for CAP in ['NGC', 'SGC']:
+            zcuts     = {'low':[0.8, 1.508088732762684], 
+                         'high':[1.508088732762684, 2.2]}
+            # z-dependent
+            wtag    = '_'.join(('wnnz', ab))
+            incat   = path + 'eBOSS_QSO_clustering_'+CAP+'_v7.dat.fits'
+            outcat  = path + 'eBOSS_QSO_clustering_'+CAP+'_v7_'+wtag+'.dat.fits'
+            weights = get_weights(CAP)
+
+            print('writing %s'%outcat)
+            mycat   = cf.swap_weights(incat)
+            mycat.run(weights, zcuts)
+            mycat.to_fits(outcat)
+            print(100*'=','\n')    
+
+
+            
 def swap_weights():
     path = '/home/mehdi/data/eboss/v7/'
     weight = lambda x, y: path + 'results_'+x+'_'+y+'/regression/nn_ablation/nn-weights.hp512.fits'
@@ -79,6 +104,22 @@ def swap_weights():
             mycat.run(weights, zcuts)
             mycat.to_fits(outcat)
             print(100*'=','\n')    
+
+def plot_ablation_selected256():
+    from LSSutils.dataviz import ablation_plot_all, get_selected_maps
+    from LSSutils.catalogs.datarelease import cols_eboss_v6_qso_simp as labels
+    fig, ax = plt.subplots(ncols=2, nrows=2, figsize=(12, 12), sharey=True)
+    ax = ax.flatten()
+
+    i = 0
+    for cap in [ 'NGC', 'SGC']: # ngc.all
+        for key in ['low', 'high']:
+            mycap = cap+'_'+key+'_'+'256' # NGC_0.8
+            get_selected_maps(glob('/home/mehdi/data/eboss/v7/results_'+mycap+'/ablation/v7.log_fold*.npy'),
+                              ['eBOSS '+mycap], labels=labels, ax=ax[i], hold=True)
+            i += 1
+    #plt.savefig('./maps_selected_eboss.pdf', bbox_inches='tight')
+    plt.show()    
     
 def plot_ablation_selected():
     from LSSutils.dataviz import ablation_plot_all, get_selected_maps
