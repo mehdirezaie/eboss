@@ -39,11 +39,12 @@ pk=${HOME}/github/LSSutils/scripts/analysis/run_pk.py
 #sys     4m1.557s
 
 if [ $1 == "regression" ]
+# took 480m21.313s for regression, 2x5x[5ablation+2regression]
 then
     for cap in NGC SGC
     do
-        #for zcut in 0.8 1.1 1.4 1.6 1.9
-        for zcut in low high
+        for zcut in 0.8 1.1 1.4 1.6 1.9
+        #for zcut in low high
         do
             #nside=512
             nside=256
@@ -91,7 +92,8 @@ then
     for cap in NGC SGC
     do
         #for tag in v7 v7_wnnz_ab v7_wnnz_plain 
-        for tag in v7 v7_wnnz_plain256
+        #for tag in v7 v7_wnnz_plain256
+        for tag in v7_wnnz_plain256more v7_wnnz_ablation256more
         do
             ouname=${DATA}/eboss/v7/results_${cap}_all/pk_${cap}_${tag}_${nmesh}.json
             galcat=${DATA}/eboss/v7/eBOSS_QSO_clustering_${cap}_${tag}.dat.fits

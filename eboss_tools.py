@@ -28,6 +28,21 @@ except:
     print('Modules not loaded')
     
 
+def shuffle():
+    d   = np.load('/home/mehdi/data/eboss/v7/ngal_features_NGC_0.8.hp256.5r.npy', allow_pickle=True).item()
+    out = lambda i:'/home/mehdi/data/eboss/v7/ngal_features_NGC_0.8_sh_'+str(i)+'.hp256.5r.npy'
+    for j in range(100):
+        for partition in ['validation', 'train']:
+            for fold_i in d[partition].keys():
+                myfold   = d[partition][fold_i]
+                label_sh = np.random.permutation(myfold['label'])
+                d[partition][fold_i]['label'] = label_sh
+        #print(j, d['validation']['fold0']['label'][:5])
+        np.save(out(j), d)
+        if j%20==0:print('saved', out(j))
+    
+    
+    
 def swap_weights_plain():
     path = '/home/mehdi/data/eboss/v7/'
     weight = lambda x, y: path + 'results_'+x+'_'+y+'/regression/nn_plain/nn-weights.hp512.fits'
@@ -53,7 +68,33 @@ def swap_weights_plain():
             mycat.run(weights, zcuts)
             mycat.to_fits(outcat)
             print(100*'=','\n')        
+            
+def swap_weights256more(model='plain'):
+    path = '/home/mehdi/data/eboss/v7/'
+    weight = lambda x, y: path + 'results_'+x+'_'+y+'_256/regression/nn_'+model+'/nn-weights.hp256.fits'
+    def get_weights(CAP):
+        redshifts = ['0.8', '1.1', '1.4', '1.6', '1.9']
+        return dict(zip(redshifts, [weight(CAP,y) for y in redshifts]))
 
+    for ab in [model+'256more']:    
+        for CAP in ['NGC', 'SGC']:
+            zcuts = {'0.8': [0.80, 1.14],
+                     '1.1': [1.14, 1.39],
+                     '1.4': [1.39, 1.63],
+                     '1.6': [1.63, 1.88],
+                     '1.9': [1.88, 2.20]}
+            # z-dependent
+            wtag    = '_'.join(('wnnz', ab))
+            incat   = path + 'eBOSS_QSO_clustering_'+CAP+'_v7.dat.fits'
+            outcat  = path + 'eBOSS_QSO_clustering_'+CAP+'_v7_'+wtag+'.dat.fits'
+            weights = get_weights(CAP)
+
+            print('writing %s'%outcat)
+            mycat   = cf.swap_weights(incat)
+            mycat.run(weights, zcuts)
+            mycat.to_fits(outcat)
+            print(100*'=','\n')   
+            
 def swap_weights256():
     path = '/home/mehdi/data/eboss/v7/'
     weight = lambda x, y: path + 'results_'+x+'_'+y+'_256/regression/nn_plain/nn-weights.hp256.fits'
@@ -105,6 +146,23 @@ def swap_weights():
             mycat.to_fits(outcat)
             print(100*'=','\n')    
 
+            
+def plot_ablation_selected256more():
+    from LSSutils.dataviz import ablation_plot_all, get_selected_maps
+    from LSSutils.catalogs.datarelease import cols_eboss_v6_qso_simp as labels
+    fig, ax = plt.subplots(ncols=5, nrows=2, figsize=(30, 12), sharey=True)
+    ax = ax.flatten()
+
+    i = 0
+    for cap in [ 'NGC', 'SGC']: # ngc.all
+        for key in ['0.8', '1.1', '1.4', '1.6', '1.9']:
+            mycap = cap+'_'+key+'_'+'256' # NGC_0.8
+            get_selected_maps(glob('/home/mehdi/data/eboss/v7/results_'+mycap+'/ablation/v7.log_fold*.npy'),
+                              ['eBOSS '+mycap], labels=labels, ax=ax[i], hold=True)
+            i += 1
+    #plt.savefig('./maps_selected_eboss.pdf', bbox_inches='tight')
+    plt.show()   
+    
 def plot_ablation_selected256():
     from LSSutils.dataviz import ablation_plot_all, get_selected_maps
     from LSSutils.catalogs.datarelease import cols_eboss_v6_qso_simp as labels
@@ -137,6 +195,71 @@ def plot_ablation_selected():
     #plt.savefig('./maps_selected_eboss.pdf', bbox_inches='tight')
     plt.show()    
 
+    
+def preparev7more(dataname='/home/mehdi/data/eboss/sysmaps/SDSS_WISE_imageprop_HI_transformed_nside512.h5',
+              nside=512, transformed=True):
+    if transformed:
+        from LSSutils.catalogs.datarelease import cols_eboss_v7_qso as my_cols
+    else:
+        from LSSutils.catalogs.datarelease import cols_eboss_v6_qso_simp as my_cols
+    snside    = str(nside)
+    dataframe = pd.read_hdf(dataname)
+
+
+    zcuts = {'0.8': [0.80, 1.14],
+             '1.1': [1.14, 1.39],
+             '1.4': [1.39, 1.63],
+             '1.6': [1.63, 1.88],
+             '1.9': [1.88, 2.20]}
+        
+    path      = '/home/mehdi/data/eboss/v7/'
+
+    fitname   = lambda x:path + 'ngal_features_'+x+'.hp'+snside+'.fits'
+    hpmask    = lambda x:path + 'mask_'+x+'.hp'+snside+'.fits'
+    fracgood  = lambda x:path + 'frac_'+x+'.hp'+snside+'.fits'
+    fitkfold  = lambda x:path + 'ngal_features_'+x+'.hp'+snside+'.5r.npy'
+    catname   = lambda x:path + 'eBOSS_QSO_clustering_'+x+'_v7.dat.fits'
+    ranname   = lambda x:path + 'eBOSS_QSO_clustering_'+x+'_v7.ran.fits'
+
+
+    hpcatname   = lambda x:path + 'eBOSS_QSO_clustering_'+x+'_v7.hp'+snside+'.dat.fits'
+
+
+    #
+    for cap in ['NGC', 'SGC']:
+        catalogs = []
+        for i,key_i in enumerate(zcuts.keys()):
+            myframe  = dataframe.copy()        
+            mytag     = cap+'_'+key_i     
+            fitname_i = fitname(mytag)
+            catname_i = catname(cap)
+            ranname_i = ranname(cap)        
+            hpcat_i   = hpcatname(mytag)
+            hpmsk_i   = hpmask(mytag)
+            hpfrac_i  = fracgood(mytag)
+            fitkfld_i = fitkfold(mytag)
+
+            #print(mytag, fitname_i, catname_i, ranname_i, hpcat_i,
+            #     hpmsk_i, hpfrac_i, fitkfld_i)        
+            mycat    = cf.EBOSSCAT([catname_i])    
+            mycat.apply_zcut(zcuts[key_i])
+            mycat.project2hp(nside=nside)
+            mycat.writehp(hpcat_i)
+
+            myframe['ngal'] = mycat.galm.astype('f8')
+
+            myran    = cf.EBOSSCAT([ranname_i])    
+            #myran.apply_zcut(zcuts[key_i]) ## do not cut randoms
+            myran.project2hp(nside=nside)
+            myranhp = myran.galm.astype('f8')
+            myranhp[myranhp==0.] = np.nan
+            myframe['nran'] = myranhp
+
+            myfit    = myframe.dropna()
+            #print('shape myfit {} {} {}'.format(cap, key_i, myfit.shape))
+            cf.hd5_2_fits(myfit, my_cols, fitname_i, hpmsk_i, hpfrac_i, fitkfld_i, res=nside, k=5)    
+    
+    
 def preparev7(dataname='/home/mehdi/data/eboss/sysmaps/SDSS_WISE_imageprop_HI_transformed_nside512.h5',
               nside=512, transformed=True):
     if transformed:
