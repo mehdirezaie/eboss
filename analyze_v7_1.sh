@@ -35,13 +35,14 @@ do
     rancat=${DATA}/eboss/v7_1/eBOSS_QSO_clustering_${cap}_v7_1.ran.fits
     du -h $galcat $rancat
     echo $ouname
-    mpirun -np 12 python $pk --galaxy_path $galcat \
-                                --random_path $rancat \
-                                --output_path $ouname \
-                                --nmesh $nmesh --sys_tot            
+    #mpirun -np 12 python $pk --galaxy_path $galcat \
+    #                            --random_path $rancat \
+    #                            --output_path $ouname \
+    #                            --nmesh $nmesh --sys_tot            
                                 
     # 0.1
-    branch=0.1
+    #branch=0.1
+    branch=0.2
     ouname=${DATA}/eboss/v7_1/results_${cap}/pk_${cap}_systot${branch}_${nmesh}.json
     galcat=${DATA}/eboss/v7_1/${branch}/eBOSS_QSO_clustering_${cap}_v7_1.dat.fits
     rancat=${DATA}/eboss/v7_1/${branch}/eBOSS_QSO_clustering_${cap}_v7_1.ran.fits

@@ -29,27 +29,49 @@ def chi2(*arrays):
 
 
 
-run_nnbar = False # once
+
 nside  = 256
 ixcols = {'u':0, 'g':1, 'r':2, 'i':3 ,'z':4}
-zcuts  = {'low':[0.8, 1.3],
-          'middle':[1.3, 1.7],
-          'high':[1.7, 2.2],
-          'all':[0.8, 2.2]}
 
+
+
+    
+from argparse import ArgumentParser
+ap = ArgumentParser(description='NNbar')
+ap.add_argument('--hemi',    default='NGC')
+ap.add_argument('--version', default='7_1')
+ap.add_argument('--branch',  default='')
+ap.add_argument('--cut',     default='z')
+ap.add_argument('--cache', action='store_true')
+ns = ap.parse_args()    
+    
 sample      = 'QSO'
-hemi        = sys.argv[1] # eg. NGC
-version     = sys.argv[2] # eg. 7_1/0.1
-try:
-    branch      = sys.argv[3]
-except:
-    branch = ''
-
+hemi        = ns.hemi
+version     = ns.version
+branch      = ns.branch
+column      = ns.cut
+run_nnbar   = ns.cache # once
+    
+    
+if column == 'z':
+    zcuts  = {'low':[0.8, 1.3],
+              'middle':[1.3, 1.7],
+              'high':[1.7, 2.2],
+              'all':[0.8, 2.2]}
+elif column == 'imag':
+    zcuts  = {'low':[10, 19.9],
+              'middle0':[19.9, 20.6],
+              'middle1':[20.6, 21.1],
+              'high':[21.1, 30],
+              'all':[10, 30]}
+else:
+    raise ValueError('column not defined')
+    
 path        ='/home/mehdi/data/eboss/v' + version + '/' + branch
 data_name   = path + 'eBOSS_'+sample+'_clustering_'+hemi+'_v'+version+'.dat.fits'
 random_name = path + 'eBOSS_'+sample+'_clustering_'+hemi+'_v'+version+'.ran.fits'
-nnbar_name  = path + 'NNBAR_'+sample+'_'+hemi+'.npy'
-plot_name   = path + 'NNBAR_'+sample+'_'+hemi+'.pdf'
+nnbar_name  = path + 'NNBAR_'+sample+'_'+hemi+'_'+column+'.npy'
+plot_name   = path + 'NNBAR_'+sample+'_'+hemi+'_'+column+'.pdf'
 
 if run_nnbar:
     sysmaps = pd.read_hdf('/home/mehdi/data/eboss/sysmaps/SDSS_HI_imageprop_nside256.h5')
@@ -80,10 +102,10 @@ if run_nnbar:
         for zcut_i in zcuts.keys():
             print(zcut_i)
 
-            data.apply_zcut(zcuts=zcuts[zcut_i])
+            data.apply_zcut(zcuts=zcuts[zcut_i], column=column)
             data.project2hp(nside=nside)
 
-            random.apply_zcut(zcuts=zcuts[zcut_i])
+            random.apply_zcut(zcuts=zcuts[zcut_i], column=column)
             random.project2hp(nside=nside)
 
             mask = (random.galm>0) & np.isfinite(sysmap_i)
@@ -104,8 +126,8 @@ else:
 
 
 nrows = len(results)//4 if len(results)%4==0 else len(results)//4+1
-color = ['k', 'b', 'r', 'purple']
-marker= ['o', '^', '*', 's']
+color = ['k', 'b', 'r', 'purple', 'g', 'orange']
+marker= ['o', '^', '*', 's', '+', '.']
 chi2l = {}
 fig, ax = plt.subplots(ncols=4, nrows=nrows, figsize=(16, 3*nrows),
                       sharey=True)
@@ -118,7 +140,11 @@ splits = list(results[sysmaps_columns[0]].keys())
 for j, key_j in enumerate(splits):
     chi2t = 0
     for i, key_i in enumerate(sysmaps_columns):
-        chi2t += chi2(*results[key_i][key_j])
+        chi2_i = chi2(*results[key_i][key_j])
+        chi2t += chi2_i
+        ax[i].text(0.1+j*0.2, 0.9, '{:.1f}'.format(chi2_i),
+                  color=color[j],
+                 transform=ax[i].transAxes)        
         ax[i].errorbar(*results[key_i][key_j], color=color[j], marker=marker[j])
         if j==0:ax[i].set(xlabel=key_i) 
     chi2l[key_j] = chi2t
