@@ -7,6 +7,10 @@
             python mock.py --imock ${i} --kind null &&
             python mock.py --imock ${i} --kind cont &&
     done
+    
+    
+    update
+    dec 14, switch to 512
 '''
 import numpy as np
 import pandas as pd
@@ -16,12 +20,13 @@ import os
 import sys
 sys.path.append('/home/mehdi/github/LSSutils')
 from LSSutils.catalogs.combinefits import EBOSSCAT, hd5_2_fits
-from LSSutils.catalogs.datarelease import cols_eboss_v6_qso_simp as my_cols
+#from LSSutils.catalogs.datarelease import cols_eboss_v6_qso_simp as my_cols
+from LSSutils.catalogs.datarelease import cols_eboss_mocks_qso as my_cols
 
 from argparse import ArgumentParser
 ap = ArgumentParser(description='PREPARE EBOSS MOCKS FOR NN REGRESSION')
 ap.add_argument('--imock', type=int, default=1)
-ap.add_argument('--nside', type=int, default=256)
+ap.add_argument('--nside', type=int, default=512)
 ap.add_argument('--kind',    default='null')
 ap.add_argument('--cap',    default='NGC')
 ap.add_argument('--target', default='QSO')
@@ -76,8 +81,10 @@ logger.info('read {}'.format(rand_name_out))
 
 # --- imaging templates
 systematics_dir  = '/home/mehdi/data/eboss/sysmaps'
-systematics_name = systematics_dir + '/SDSS_HI_imageprop_nside256.h5'
-dataframe = pd.read_hdf(systematics_name)
+# systematics_name = systematics_dir + '/SDSS_HI_imageprop_nside256.h5'
+# dataframe = pd.read_hdf(systematics_name)
+systematics_name = systematics_dir + '/SDSS_WISE_HI_imageprop_nside512.h5'
+dataframe = pd.read_hdf(systematics_name, key='templates')
 logger.info('read {}'.format(systematics_name))
 
 
@@ -88,7 +95,7 @@ logger.info('read {}'.format(systematics_name))
 mock   = EBOSSCAT([mock_name_out],
                 weights=['weight_fkp', 'weight_noz', 'weight_cp'])
 random = EBOSSCAT([rand_name_out],
-                weights=['weight_fkp', 'weight_noz', 'weight_cp', 'weight_systot'])
+                weights=['weight_fkp', 'comp_boss'])
 
 for i, key_i in enumerate(zcuts):
     logger.info('split based on {}'.format(zcuts[key_i]))
