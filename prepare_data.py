@@ -1,11 +1,7 @@
 #!/usr/bin/env python
 '''
-
-    run it 
-
-    
-    
-    update
+    Update
+    jan 03, switch back to v7_1
     dec 14, switch to 512
 '''
 import numpy as np
@@ -42,14 +38,10 @@ zcuts     = {'0.8': [0.80, 1.14],
              '1.4': [1.39, 1.63],
              '1.6': [1.63, 1.88],
              '1.9': [1.88, 2.20]}
-
-
     
-    
-output_dir    = '/home/mehdi/data/eboss/v7_2/v0.0'    
-data_name_in = f'/home/mehdi/data/eboss/v7_2/eBOSS_{target}_full_{cap}_v7_2.dat.fits'
-rand_name_in = f'/home/mehdi/data/eboss/v7_2/eBOSS_{target}_full_{cap}_v7_2.ran.fits'
-
+output_dir    = '/home/mehdi/data/eboss/v7_1/0.4'    
+data_name_in = f'/home/mehdi/data/eboss/v7_1/eBOSS_{target}_full_{cap}_v7_1.dat.fits'
+rand_name_in = f'/home/mehdi/data/eboss/v7_1/eBOSS_{target}_full_{cap}_v7_1.ran.fits'
 
 #--- logger
 # logging.basicConfig(
@@ -57,18 +49,13 @@ rand_name_in = f'/home/mehdi/data/eboss/v7_2/eBOSS_{target}_full_{cap}_v7_2.ran.
 #     level=logging.INFO,
 #     format="%(asctime)s:%(levelname)s:%(message)s"
 #     )
-
-
 logger = logging.getLogger("Logger 1")
-
 
 # --- check if the output directory exists
 if not os.path.isdir(output_dir):
     logger.info('create {}'.format(output_dir))
     os.makedirs(output_dir)
-
 logger.info('results will be written under {}'.format(output_dir))    
-
 
 # --- input files
 logger.info('prepare the files for NN regression ')
@@ -81,13 +68,9 @@ systematics_name = systematics_dir + '/SDSS_WISE_HI_imageprop_nside512.h5'
 dataframe = pd.read_hdf(systematics_name, key='templates')
 logger.info('read {}'.format(systematics_name))
 
-
-
 #--- read galaxy and random 
 mock   = EbossCatalog(data_name_in, 'galaxy')
 random = EbossCatalog(rand_name_in, 'random')    
-
-
 for i, key_i in enumerate(zcuts):
     logger.info('split based on {}'.format(zcuts[key_i]))
 
@@ -105,8 +88,6 @@ for i, key_i in enumerate(zcuts):
     ##random.apply_zcut(zcuts[key_i]) ## -- we don't cut randoms
     random.cutz([0.8, 2.2])
     random.tohp(nside)
-    
-    
     
     # --- append the galaxy and random density
     dataframe_i = dataframe.copy()

@@ -72,9 +72,9 @@ zcuts     = {'0.8': [0.80, 1.14],
              '1.6': [1.63, 1.88],
              '1.9': [1.88, 2.20]}
 
-output_dir    = '/home/mehdi/data/eboss/v7_2/v0.0'    
-data_name_in = f'/home/mehdi/data/eboss/v7_2/eBOSS_{target}_full_{cap}_v7_2.dat.fits'
-rand_name_in = f'/home/mehdi/data/eboss/v7_2/eBOSS_{target}_full_{cap}_v7_2.ran.fits'
+output_dir    = '/home/mehdi/data/eboss/v7_1/0.4'    
+data_name_in = f'/home/mehdi/data/eboss/v7_1/eBOSS_{target}_full_{cap}_v7_1.dat.fits'
+rand_name_in = f'/home/mehdi/data/eboss/v7_1/eBOSS_{target}_full_{cap}_v7_1.ran.fits'
 
 
 # --- check if the output directory exists
@@ -111,10 +111,10 @@ for i, model_i in enumerate(['plain', 'ablation', 'known']):
     weights   = dict(zip(redshifts, [weight(zcut_i, model_i) for zcut_i in redshifts]))
     #print(weights)
     
-    wtag = '_'.join(('v7_2', 'wnnz', model_i))
+    wtag = '_'.join(('v7_1', 'wnnz', model_i))
     #print(wtag)
     
-    mock_name_wtag   = output_dir + '/' + data_name_in.split('/')[-1].replace('v7_2', wtag)
+    mock_name_wtag   = output_dir + '/' + data_name_in.split('/')[-1].replace('v7_1', wtag)
     random_name_wtag = mock_name_wtag.replace('.dat', '.ran')
     #print(mock_name_out)
     #print(mock_name_wtag)

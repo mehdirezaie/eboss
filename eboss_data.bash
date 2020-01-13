@@ -14,7 +14,7 @@ pk=${HOME}/github/LSSutils/scripts/analysis/run_pk.py
 
 # --- prepare for NN regression
 ## took 2 min
-# python prepare_data.py
+#python prepare_data.py
 
 
 #
@@ -27,7 +27,7 @@ axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
 #do
 #    for zcut in 0.8 1.1 1.4 1.6 1.9
 #    do 
-#        output_dir=/home/mehdi/data/eboss/v7_2/v0.0
+#        output_dir=/home/mehdi/data/eboss/v7_1/0.4
 #        ngal_features_5fold=${output_dir}/ngal_features_${cap}_${zcut}_${nside}.5r.npy
 #
 #        # define output dirs
@@ -44,19 +44,18 @@ axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
 #        echo $oudir_ab
 #        echo $oudir_reg
 #
-#        #
-#         # ablation
-#         for fold in 0 1 2 3 4
-#         do
-#             echo "feature selection on " $fold ${cap}_${zcut}
-#             mpirun -np 16 python $ablation --data $ngal_features_5fold \
-#                          --output $oudir_ab --log $log_ablation \
-#                          --rank $fold --axfit $axfit1
-#         done      
+#        # ablation
+#        for fold in 0 1 2 3 4
+#        do
+#            echo "feature selection on " $fold ${cap}_${zcut}
+#            mpirun -np 16 python $ablation --data $ngal_features_5fold \
+#                         --output $oudir_ab --log $log_ablation \
+#                         --rank $fold --axfit $axfit1
+#        done      
 #
-#         echo 'regression on ' $fold ${cap}_${zcut}
+#        echo 'regression on ' $fold ${cap}_${zcut}
 #         # regression with ablation
-#         mpirun -np 5 python $nnfit --input $ngal_features_5fold \
+#        mpirun -np 5 python $nnfit --input $ngal_features_5fold \
 #                            --output ${oudir_reg}${nn1}/ \
 #                            --ablog ${oudir_ab}${log_ablation} --nside $nside
 #
@@ -68,12 +67,9 @@ axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
 #        mpirun -np 5 python $nnfit --input $ngal_features_5fold \
 #                           --output ${oudir_reg}${nn3}/ --nside $nside --axfit $axfit0 
 #
-#    done        
+#   done        
 #done 
 #
-
-
-
 # ---- swap the weights in mock catalogs
 # NN's weights
 # 4 min
@@ -84,16 +80,15 @@ axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
 # python do_systematics_fit.py QSO NGC 1 10 0.8 2.2
 
 
-# copy all catalogs to their local
-# for i in {2..9};do cp /B/Shared/eBOSS/null/EZmock_eBOSS_QSO_NGC_v7_noweight_000${i}.dat.fits /B/Shared/eBOSS/null/EZmock_eBOSS_QSO_NGC_v7_noweight_000${i}.ran.fits /home/mehdi/data/eboss/mocks/null/000${i}/;done
 
 nmesh=512
-ouput_pk=/home/mehdi/data/eboss/v7_2/v0.0
-input_cat=/home/mehdi/data/eboss/v7_2/v0.0
+ouput_pk=/home/mehdi/data/eboss/v7_1/0.4
+input_cat=/home/mehdi/data/eboss/v7_1/0.4
+
 
 for cap in NGC
 do
-  wtags='v7_2 v7_2_wnnz_known v7_2_wnnz_plain v7_2_wnnz_ablation'
+  wtags='v7_1 v7_1_wnnz_known v7_1_wnnz_plain v7_1_wnnz_ablation'
   for wtag in $wtags
   do
     echo $kind $wtag
@@ -107,11 +102,10 @@ do
                              --random_path $rancat \
                              --output_path $ouname \
                              --nmesh $nmesh --sys_tot
-
-    # without weights
-    if [ $wtag == "v7_2" ]
+    ## without weights
+    if [ $wtag == "v7_1" ]
     then 
-        ouname=${ouput_pk}/pk_${cap}_v7_2_nosysweight_${nmesh}.json
+        ouname=${ouput_pk}/pk_${cap}_${wtag}_nosysweight_${nmesh}.json
         echo $ouname
         # with weights
         mpirun -np 16 python $pk --galaxy_path $galcat \
@@ -119,5 +113,5 @@ do
                                  --output_path $ouname \
                                  --nmesh $nmesh                   
     fi                              
-     done
- done
+    done
+done
