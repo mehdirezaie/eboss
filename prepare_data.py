@@ -33,13 +33,15 @@ cap   = ns.cap
 target= ns.target
 
 ## --- z-cuts --- 
-zcuts     = {'0.8': [0.80, 1.14],
-             '1.1': [1.14, 1.39],
-             '1.4': [1.39, 1.63],
-             '1.6': [1.63, 1.88],
-             '1.9': [1.88, 2.20]}
-    
-output_dir    = '/home/mehdi/data/eboss/v7_1/0.4'    
+#zcuts     = {'0.8': [0.80, 1.14],
+#             '1.1': [1.14, 1.39],
+#             '1.4': [1.39, 1.63],
+#             '1.6': [1.63, 1.88],
+#             '1.9': [1.88, 2.20]}
+
+zcuts = {'all':[0.80, 2.20]}
+
+output_dir    = '/home/mehdi/data/eboss/v7_1/0.5'    
 data_name_in = f'/home/mehdi/data/eboss/v7_1/eBOSS_{target}_full_{cap}_v7_1.dat.fits'
 rand_name_in = f'/home/mehdi/data/eboss/v7_1/eBOSS_{target}_full_{cap}_v7_1.ran.fits'
 

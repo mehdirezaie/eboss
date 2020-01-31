@@ -13,7 +13,7 @@ pk=${HOME}/github/LSSutils/scripts/analysis/run_pk.py
 
 
 # --- prepare for NN regression
-## took 2 min
+# took 2 min
 #python prepare_data.py
 
 
@@ -25,9 +25,9 @@ axfit0='0 1'
 axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
 #for cap in NGC
 #do
-#    for zcut in 0.8 1.1 1.4 1.6 1.9
+#    for zcut in all
 #    do 
-#        output_dir=/home/mehdi/data/eboss/v7_1/0.4
+#        output_dir=/home/mehdi/data/eboss/v7_1/0.5
 #        ngal_features_5fold=${output_dir}/ngal_features_${cap}_${zcut}_${nside}.5r.npy
 #
 #        # define output dirs
@@ -80,12 +80,12 @@ axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
 # python do_systematics_fit.py QSO NGC 1 10 0.8 2.2
 
 
-
+#
 nmesh=512
-ouput_pk=/home/mehdi/data/eboss/v7_1/0.4
-input_cat=/home/mehdi/data/eboss/v7_1/0.4
+ouput_pk=/home/mehdi/data/eboss/v7_1/0.5
+input_cat=/home/mehdi/data/eboss/v7_1/0.5
 
-
+#
 for cap in NGC
 do
   wtags='v7_1 v7_1_wnnz_known v7_1_wnnz_plain v7_1_wnnz_ablation'
@@ -102,7 +102,7 @@ do
                              --random_path $rancat \
                              --output_path $ouname \
                              --nmesh $nmesh --sys_tot
-    ## without weights
+    # without weights
     if [ $wtag == "v7_1" ]
     then 
         ouname=${ouput_pk}/pk_${cap}_${wtag}_nosysweight_${nmesh}.json
@@ -111,7 +111,7 @@ do
         mpirun -np 16 python $pk --galaxy_path $galcat \
                                  --random_path $rancat \
                                  --output_path $ouname \
-                                 --nmesh $nmesh                   
+                                --nmesh $nmesh                   
     fi                              
     done
 done
