@@ -71,7 +71,10 @@ kind  = ns.kind
 #             '1.6': [1.63, 1.88],
 #             '1.9': [1.88, 2.20]}
 #
-zcuts = {'all':[0.80, 2.20]}
+#zcuts = {'all':[0.80, 2.20]}
+zcuts = {'low':[0.80, 1.50],
+        'high':[1.50, 2.20]}
+
 
 if kind == 'cont':
     input_dir = '/B/Shared/eBOSS/contaminated'
@@ -160,11 +163,11 @@ for i, model_i in enumerate(['plain', 'ablation', 'known']):
     weight    = lambda zcut_i, model_i: output_dir + f'/results_{cap}_{zcut_i}_{nside}'\
                                         +f'/regression/nn_{model_i}/nn-weights.hp{nside}.fits'
     #redshifts = ['0.8', '1.1', '1.4', '1.6', '1.9']
-    redshifts = ['all']
+    redshifts = ['low', 'high']
     weights   = dict(zip(redshifts, [weight(zcut_i, model_i) for zcut_i in redshifts]))
     #print(weights)
     
-    wtag = '_'.join(('v7', 'wnnall', model_i))
+    wtag = '_'.join(('v7', 'wnnlowhigh', model_i))
     #print(wtag)
     
     mock_name_wtag   = output_dir + '/' + mock_name_out.split('/')[-1].replace('v7', wtag)

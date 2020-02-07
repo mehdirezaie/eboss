@@ -29,16 +29,16 @@ pk=${HOME}/github/LSSutils/scripts/analysis/run_pk.py
 # real    8748m25.076s
 # user    149188m18.459s
 # sys     6889m37.525s
-nside=512
-axfit0='0 1'
-axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
+#nside=512
+#axfit0='0 1'
+#axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
 #for cap in NGC
 #do
 #     for mocki in $(seq -f "%04g" 1 9)
 #     do
 #         for kind in null cont
 #         do
-#             for zcut in all
+#             for zcut in low high
 #             
 #             do 
 #                 output_dir=/home/mehdi/data/eboss/mocks/${kind}/${mocki}
@@ -54,20 +54,20 @@ axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
 #                 nn2=nn_plain           
 #                 nn3=nn_known
 #               
-#                
+#              
 #                 du -h ${ngal_features_5fold}
 #                 echo $oudir_ab
 #                 echo $oudir_reg
 #                
 #                 #
-#                  # ablation
-#                  for fold in 0 1 2 3 4
-#                  do
+#                 # ablation
+#                 for fold in 0 1 2 3 4
+#                 do
 #                      echo "feature selection on " $fold ${cap}_${zcut}
 #                      mpirun -np 16 python $ablation --data $ngal_features_5fold \
 #                                   --output $oudir_ab --log $log_ablation \
 #                                   --rank $fold --axfit $axfit1
-#                  done      
+#                 done      
 #               
 #                  echo 'regression on ' $fold ${cap}_${zcut}
 #                  # regression with ablation
@@ -87,7 +87,7 @@ axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
 #         done
 #     done
 #done 
-#
+##
 
 
 
@@ -126,9 +126,11 @@ do
            # corrected
            if [ $kind == "cont" ]
            then
-               wtags='v7 v7_wnnall_known v7_wnnall_plain v7_wnnall_ablation'
+               #wtags='v7 v7_wnnall_known v7_wnnall_plain v7_wnnall_ablation'
+               wtags='v7_wnnlowhigh_known v7_wnnlowhigh_plain v7_wnnlowhigh_ablation'
            else
-               wtags='v7 v7_noweight v7_wnnall_known_noweight v7_wnnall_plain_noweight v7_wnnall_ablation_noweight'
+               #wtags='v7 v7_noweight v7_wnnall_known_noweight v7_wnnall_plain_noweight v7_wnnall_ablation_noweight'
+               wtags='v7_wnnlowhigh_known_noweight v7_wnnlowhigh_plain_noweight v7_wnnlowhigh_ablation_noweight'
            fi
            
            for wtag in $wtags
@@ -152,10 +154,10 @@ do
                    ouname=${ouput_pk}/pk_${cap}_${kind}_v7_nosysweight_${nmesh}_${mocki}.json
                    echo $ouname
                    # with weights
-                   mpirun -np 16 python $pk --galaxy_path $galcat \
-                                            --random_path $rancat \
-                                            --output_path $ouname \
-                                            --nmesh $nmesh                   
+#                   mpirun -np 16 python $pk --galaxy_path $galcat \
+#                                            --random_path $rancat \
+#                                            --output_path $ouname \
+#                                            --nmesh $nmesh                   
                fi
                
                if [[ $wtag == "v7"  &&  $kind == "cont" ]]
@@ -163,10 +165,10 @@ do
                    ouname=${ouput_pk}/pk_${cap}_${kind}_v7_nosysweight_${nmesh}_${mocki}.json
                    echo $ouname
                    # with weights
-                   mpirun -np 16 python $pk --galaxy_path $galcat \
-                                            --random_path $rancat \
-                                            --output_path $ouname \
-                                            --nmesh $nmesh                   
+#                   mpirun -np 16 python $pk --galaxy_path $galcat \
+#                                            --random_path $rancat \
+#                                            --output_path $ouname \
+#                                            --nmesh $nmesh                   
                fi                              
            done           
         done

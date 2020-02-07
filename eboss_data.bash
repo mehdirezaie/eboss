@@ -25,9 +25,9 @@ axfit0='0 1'
 axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
 #for cap in NGC
 #do
-#    for zcut in all
+#    for zcut in low high 
 #    do 
-#        output_dir=/home/mehdi/data/eboss/v7_1/0.5
+#        output_dir=/home/mehdi/data/eboss/v7_1/0.6
 #        ngal_features_5fold=${output_dir}/ngal_features_${cap}_${zcut}_${nside}.5r.npy
 #
 #        # define output dirs
@@ -82,13 +82,15 @@ axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
 
 #
 nmesh=512
-ouput_pk=/home/mehdi/data/eboss/v7_1/0.5
-input_cat=/home/mehdi/data/eboss/v7_1/0.5
+ouput_pk=/home/mehdi/data/eboss/v7_1/0.6
+input_cat=/home/mehdi/data/eboss/v7_1/0.6
 
 #
 for cap in NGC
 do
-  wtags='v7_1 v7_1_wnnz_known v7_1_wnnz_plain v7_1_wnnz_ablation'
+  #wtags='v7_1 v7_1_wnnz_known v7_1_wnnz_plain v7_1_wnnz_ablation'
+  # v7_1 is aleady run in 0.5
+  wtags='v7_1_wnnzlowhigh_known v7_1_wnnzlowhigh_plain v7_1_wnnzlowhigh_ablation'   
   for wtag in $wtags
   do
     echo $kind $wtag

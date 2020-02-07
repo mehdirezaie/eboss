@@ -72,11 +72,14 @@ target= ns.target
 #             '1.6': [1.63, 1.88],
 #             '1.9': [1.88, 2.20]}
 #
-zcuts = {'all':[0.80, 2.20]}
+#zcuts = {'all':[0.80, 2.20]}
+
+zcuts = {'low':[0.80, 1.50],
+        'high':[1.50, 2.20]}
 
 
 
-output_dir    = '/home/mehdi/data/eboss/v7_1/0.5'    
+output_dir    = '/home/mehdi/data/eboss/v7_1/0.6'    
 data_name_in = f'/home/mehdi/data/eboss/v7_1/eBOSS_{target}_full_{cap}_v7_1.dat.fits'
 rand_name_in = f'/home/mehdi/data/eboss/v7_1/eBOSS_{target}_full_{cap}_v7_1.ran.fits'
 
@@ -112,11 +115,11 @@ for i, model_i in enumerate(['plain', 'ablation', 'known']):
     weight    = lambda zcut_i, model_i: output_dir + f'/results_{cap}_{zcut_i}_{nside}'\
                                         +f'/regression/nn_{model_i}/nn-weights.hp{nside}.fits'
     #redshifts = ['0.8', '1.1', '1.4', '1.6', '1.9']
-    redshifts = ['all']
+    redshifts = ['low', 'high']
     weights   = dict(zip(redshifts, [weight(zcut_i, model_i) for zcut_i in redshifts]))
     #print(weights)
     
-    wtag = '_'.join(('v7_1', 'wnnz', model_i))
+    wtag = '_'.join(('v7_1', 'wnnzlowhigh', model_i))
     #print(wtag)
     
     mock_name_wtag   = output_dir + '/' + data_name_in.split('/')[-1].replace('v7_1', wtag)
