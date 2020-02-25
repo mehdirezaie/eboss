@@ -13,26 +13,29 @@ pk=${HOME}/github/LSSutils/scripts/analysis/run_pk.py
 
 
 # --- prepare for NN regression
-## took 2 min
-# python prepare_data.py
+# took 2 min
+#python prepare_data.py --cap SGC
 
 
 #
 # --- perform regression
 # 553 min
 nside=512
-axfit0='0 1'
+#axfit0='0 1'
+axfit0='0 2 5 13'
 axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
+
 #for cap in NGC
+#for cap in SGC
 #do
-#    for zcut in 0.8 1.1 1.4 1.6 1.9
+#    for zcut in zhigh all low high 
 #    do 
-#        output_dir=/home/mehdi/data/eboss/v7_2/v0.0
+#        output_dir=/home/mehdi/data/eboss/v7_2/0.1
 #        ngal_features_5fold=${output_dir}/ngal_features_${cap}_${zcut}_${nside}.5r.npy
 #
 #        # define output dirs
-#        oudir_ab=${output_dir}/results_${cap}_${zcut}_${nside}/ablation/
-#        oudir_reg=${output_dir}/results_${cap}_${zcut}_${nside}/regression/            
+#        oudir_ab=${output_dir}/results/${cap}_${zcut}_${nside}/ablation/
+#        oudir_reg=${output_dir}/results/${cap}_${zcut}_${nside}/regression/            
 #
 #        # define output names
 #        log_ablation=eboss_data.log
@@ -44,19 +47,18 @@ axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
 #        echo $oudir_ab
 #        echo $oudir_reg
 #
-#        #
-#         # ablation
-#         for fold in 0 1 2 3 4
-#         do
-#             echo "feature selection on " $fold ${cap}_${zcut}
-#             mpirun -np 16 python $ablation --data $ngal_features_5fold \
-#                          --output $oudir_ab --log $log_ablation \
-#                          --rank $fold --axfit $axfit1
-#         done      
+#        # ablation
+#        for fold in 0 1 2 3 4
+#        do
+#            echo "feature selection on " $fold ${cap}_${zcut}
+#            mpirun -np 16 python $ablation --data $ngal_features_5fold \
+#                         --output $oudir_ab --log $log_ablation \
+#                         --rank $fold --axfit $axfit1
+#        done      
 #
-#         echo 'regression on ' $fold ${cap}_${zcut}
+#        echo 'regression on ' $fold ${cap}_${zcut}
 #         # regression with ablation
-#         mpirun -np 5 python $nnfit --input $ngal_features_5fold \
+#        mpirun -np 5 python $nnfit --input $ngal_features_5fold \
 #                            --output ${oudir_reg}${nn1}/ \
 #                            --ablog ${oudir_ab}${log_ablation} --nside $nside
 #
@@ -67,57 +69,91 @@ axfit1='0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19'
 #        # regression with known maps
 #        mpirun -np 5 python $nnfit --input $ngal_features_5fold \
 #                           --output ${oudir_reg}${nn3}/ --nside $nside --axfit $axfit0 
-#
-#    done        
+#   done        
 #done 
 #
 
-
-
+#
 # ---- swap the weights in mock catalogs
 # NN's weights
 # 4 min
-#python swap_data.py
+#for cap in NGC SGC
+#do
+#    for model in plain known ablation
+#    do
+#        echo $cap $model
+#        python swap_data.py --cap $cap --model $model
+#    done
+#done
+
 
 # Julian's code
 # 2 min
 # python do_systematics_fit.py QSO NGC 1 10 0.8 2.2
 
 
-# copy all catalogs to their local
-# for i in {2..9};do cp /B/Shared/eBOSS/null/EZmock_eBOSS_QSO_NGC_v7_noweight_000${i}.dat.fits /B/Shared/eBOSS/null/EZmock_eBOSS_QSO_NGC_v7_noweight_000${i}.ran.fits /home/mehdi/data/eboss/mocks/null/000${i}/;done
-
 nmesh=512
-ouput_pk=/home/mehdi/data/eboss/v7_2/v0.0
-input_cat=/home/mehdi/data/eboss/v7_2/v0.0
+version=v7_2
+versiono=0.1
+ouput_pk=/home/mehdi/data/eboss/${version}/${versiono}/
+input_catn=/home/mehdi/data/eboss/${version}/${versiono}/
+input_cato=/home/mehdi/data/eboss/${version}/
 
-for cap in NGC
+for zlim in standard zhigh combined
 do
-  wtags='v7_2 v7_2_wnnz_known v7_2_wnnz_plain v7_2_wnnz_ablation'
-  for wtag in $wtags
-  do
-    echo $kind $wtag
-    ouname=${ouput_pk}/pk_${cap}_${wtag}_${nmesh}.json
-    rancat=${input_cat}/eBOSS_QSO_full_${cap}_${wtag}.ran.fits
-    galcat=${input_cat}/eBOSS_QSO_full_${cap}_${wtag}.dat.fits
-    echo $ouname
-    du -h $galcat $rancat               
-    # with weights
-    mpirun -np 16 python $pk --galaxy_path $galcat \
-                             --random_path $rancat \
-                             --output_path $ouname \
-                             --nmesh $nmesh --sys_tot
-
-    # without weights
-    if [ $wtag == "v7_2" ]
+    if [ $zlim == "standard" ]
+    then
+        zrange='0.8 2.2'
+    elif [ $zlim == "zhigh" ]
     then 
-        ouname=${ouput_pk}/pk_${cap}_v7_2_nosysweight_${nmesh}.json
+        zrange='2.2 3.5'
+    elif [ $zlim == "combined" ]
+    then
+        zrange='0.8 3.5'
+    fi
+    #echo $zrange $zlim
+
+    for cap in NGC SGC
+    do
+        #echo $cap
+        galcat=${input_cato}eBOSS_QSO_full_${cap}_${version}.dat.fits
+        rancat=${input_cato}eBOSS_QSO_full_${cap}_${version}.ran.fits
+        #du -h $galcat $rancat
+
+        model=wsystot
+        versioni=${version}_${versiono}_${model}
+        ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
         echo $ouname
-        # with weights
         mpirun -np 16 python $pk --galaxy_path $galcat \
                                  --random_path $rancat \
                                  --output_path $ouname \
-                                 --nmesh $nmesh                   
-    fi                              
-     done
- done
+                                 --nmesh $nmesh --zlim ${zrange} --sys_tot
+       
+        model=wosystot
+        versioni=${version}_${versiono}_${model}
+        ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
+        echo $ouname
+        mpirun -np 16 python $pk --galaxy_path $galcat \
+                                 --random_path $rancat \
+                                 --output_path $ouname \
+                                 --nmesh $nmesh --zlim ${zrange} 
+
+
+        for model in plain known ablation
+        do
+            #echo $model 
+            wtag=lowmidhigh
+            versioni=${version}_${versiono}_${model}_${wtag}
+            ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
+            galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
+            rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
+            #du -h $galcat $rancat
+            echo $ouname
+            mpirun -np 16 python $pk --galaxy_path $galcat \
+                                 --random_path $rancat \
+                                 --output_path $ouname \
+                                 --nmesh $nmesh --zlim ${zrange} --sys_tot
+
+        done
+    done
+done
