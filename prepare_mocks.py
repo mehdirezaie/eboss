@@ -48,9 +48,9 @@ kind  = ns.kind
 #
 #zcuts = {'all':[0.80, 2.20]}
 #
-zcuts = {'low':[0.80, 1.50],
-        'high':[1.50, 2.20]}
-
+#zcuts = {'low':[0.80, 1.50],
+#         'high':[1.50, 2.20]}
+zcuts = {'zhigh':[2.20, 3.5]}
 
 
 if kind == 'cont':

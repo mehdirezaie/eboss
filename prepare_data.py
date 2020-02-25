@@ -41,12 +41,18 @@ target= ns.target
 
 #zcuts = {'all':[0.80, 2.20]}
 
-zcuts = {'low':[0.80, 1.50],
-        'high':[1.50, 2.20]}
+#zcuts = {'low':[0.80, 1.50],
+#        'high':[1.50, 2.20]}
 
-output_dir    = '/home/mehdi/data/eboss/v7_1/0.6'    
-data_name_in = f'/home/mehdi/data/eboss/v7_1/eBOSS_{target}_full_{cap}_v7_1.dat.fits'
-rand_name_in = f'/home/mehdi/data/eboss/v7_1/eBOSS_{target}_full_{cap}_v7_1.ran.fits'
+zcuts = {'low':[0.8, 1.5],
+         'high':[1.5, 2.2],
+         'all':[0.8, 2.2],
+         'zhigh':[2.2, 3.5]}
+
+
+output_dir    = '/home/mehdi/data/eboss/v7_2/0.1'    
+data_name_in = f'/home/mehdi/data/eboss/v7_2/eBOSS_{target}_full_{cap}_v7_2.dat.fits'
+rand_name_in = f'/home/mehdi/data/eboss/v7_2/eBOSS_{target}_full_{cap}_v7_2.ran.fits'
 
 #--- logger
 # logging.basicConfig(
@@ -73,11 +79,21 @@ systematics_name = systematics_dir + '/SDSS_WISE_HI_imageprop_nside512.h5'
 dataframe = pd.read_hdf(systematics_name, key='templates')
 logger.info('read {}'.format(systematics_name))
 
-#--- read galaxy and random 
-mock   = EbossCatalog(data_name_in, 'galaxy')
-random = EbossCatalog(rand_name_in, 'random')    
 for i, key_i in enumerate(zcuts):
+
     logger.info('split based on {}'.format(zcuts[key_i]))
+
+    #--- read galaxy and random 
+    if key_i=='zhigh':
+        zmin = 2.2
+        zmax = 3.5
+    else:
+        zmin=0.8
+        zmax=2.2
+
+    mock   = EbossCatalog(data_name_in, 'galaxy', zmin=zmin, zmax=zmax)
+    random = EbossCatalog(rand_name_in, 'random', zmin=zmin, zmax=zmax)    
+
 
     # --- prepare the names for the output files
     hpcat     = output_dir + f'/galmap_{cap}_{key_i}_{nside}.hp.fits'
@@ -91,7 +107,7 @@ for i, key_i in enumerate(zcuts):
     mock.writehp(hpcat)    
     
     ##random.apply_zcut(zcuts[key_i]) ## -- we don't cut randoms
-    random.cutz([0.8, 2.2])
+    ##random.cutz([0.8, 2.2])
     random.tohp(nside)
     
     # --- append the galaxy and random density
