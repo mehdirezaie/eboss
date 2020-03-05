@@ -42,7 +42,11 @@ def main(model='plain',
     zcuts = {'low':[[0.8, 1.5],   None],
              'high':[[1.5, 2.2],  None],
              'all':[[0.8, 2.2],   None],
-             'zhigh':[[2.2, 3.5], None]}
+             'zhigh':[[2.2, 3.5], None],
+             'z1':[[0.8, 1.3], None],
+             'z2':[[1.3, 1.6], None],
+             'z3':[[1.6, 2.2], None]}
+
 
 
 
@@ -83,7 +87,7 @@ if __name__ == '__main__':
     ap.add_argument('--zmin',    type=float, default=0.8, help='eg:0.8')
     ap.add_argument('--zmax',    type=float, default=3.5, help='eg:3.5')
     ap.add_argument('--nside',   type=int,   default=512, help='eg:512')
-    ap.add_argument('--zsplit',  type=str,   default='lowmidhigh', help='eg: lowmighigh')
+    ap.add_argument('--zsplit',  type=str,   default='lowmidhigh', help='eg: lowmidhigh')
     ap.add_argument('--slices',  type=str,   default=['low', 'high', 'zhigh'], nargs='*', help="eg:['low', 'high', 'zhigh']")
     ap.add_argument('--cap',     type=str,   default='NGC', help='eg: NGC or SGC')
     ap.add_argument('--target',  type=str,   default='QSO', help='eg: QSO')
@@ -117,9 +121,3 @@ if __name__ == '__main__':
     main(**kwargs)
         
     
-
-
-
-
-
-
