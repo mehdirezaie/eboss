@@ -6,5 +6,5 @@ data = ft.read(name)
 total = data.size
 totalw = (data['WEIGHT_SYSTOT']*data['WEIGHT_CP']*data['WEIGHT_FKP']*data['WEIGHT_NOZ']).sum()
 
-print(name.split('/')[-1], total, totalw)
+print('{:70s} {:9d} {:9.3f}'.format(name.split('/')[-1], total, totalw))
 

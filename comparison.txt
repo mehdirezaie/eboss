@@ -1,46 +1,64 @@
-(py3p6) mehdi@lakme:~/data/eboss/v7_2> for i in eBOSS_QSOandhiz_clustering_*; do python ~/github/eboss/testcats.py ${i};done
-eBOSS_QSOandhiz_clustering_NGC_v7_2.dat.fits 264888 255214.9365747111
-eBOSS_QSOandhiz_clustering_NGC_v7_2.ran.fits 13475376 12698556.40895342
-eBOSS_QSOandhiz_clustering_SGC_v7_2.dat.fits 151487 149531.1051360781
-eBOSS_QSOandhiz_clustering_SGC_v7_2.ran.fits 8658242 8344435.3596484065
-(py3p6) mehdi@lakme:~/data/eboss/v7_2> for i in 0.1/eBOSS_QSO_clustering_*; do python ~/github/eboss/testcats.py ${i};done
-eBOSS_QSO_clustering_NGC_v7_2_0.1_ablation_allhigh.dat.fits 264888 254889.07546000718
-eBOSS_QSO_clustering_NGC_v7_2_0.1_ablation_allhigh.ran.fits 13475376 12689532.144386563
-eBOSS_QSO_clustering_NGC_v7_2_0.1_ablation_lowmidhigh.dat.fits 264888 255000.10551353008
-eBOSS_QSO_clustering_NGC_v7_2_0.1_ablation_lowmidhigh.ran.fits 13475376 12694560.610700123
-eBOSS_QSO_clustering_NGC_v7_2_0.1_ablation_z3high.dat.fits 264888 254732.6670612339
-eBOSS_QSO_clustering_NGC_v7_2_0.1_ablation_z3high.ran.fits 13475376 12682228.165863875
-eBOSS_QSO_clustering_NGC_v7_2_0.1.dat.fits 264888 255214.93657471114
-eBOSS_QSO_clustering_NGC_v7_2_0.1_known_allhigh.dat.fits 264888 255076.22991346664
-eBOSS_QSO_clustering_NGC_v7_2_0.1_known_allhigh.ran.fits 13475376 12699815.122695198
-eBOSS_QSO_clustering_NGC_v7_2_0.1_known_lowmidhigh.dat.fits 264888 254948.08796366007
-eBOSS_QSO_clustering_NGC_v7_2_0.1_known_lowmidhigh.ran.fits 13475376 12693172.381173098
-eBOSS_QSO_clustering_NGC_v7_2_0.1_known_z3high.dat.fits 264888 254954.81941223747
-eBOSS_QSO_clustering_NGC_v7_2_0.1_known_z3high.ran.fits 13475376 12693498.773818865
-eBOSS_QSO_clustering_NGC_v7_2_0.1_plain_allhigh.dat.fits 264888 255674.11919527745
-eBOSS_QSO_clustering_NGC_v7_2_0.1_plain_allhigh.ran.fits 13475376 12728347.598382978
-eBOSS_QSO_clustering_NGC_v7_2_0.1_plain_lowmidhigh.dat.fits 264888 254944.79969879793
-eBOSS_QSO_clustering_NGC_v7_2_0.1_plain_lowmidhigh.ran.fits 13475376 12692165.456530152
-eBOSS_QSO_clustering_NGC_v7_2_0.1_plain_z3high.dat.fits 264888 255174.16342800125
-eBOSS_QSO_clustering_NGC_v7_2_0.1_plain_z3high.ran.fits 13475376 12704585.317986624
-eBOSS_QSO_clustering_NGC_v7_2_0.1.ran.fits 13475376 12068708.527355717
-eBOSS_QSO_clustering_SGC_v7_2_0.1_ablation_allhigh.dat.fits 151487 149266.50348720673
-eBOSS_QSO_clustering_SGC_v7_2_0.1_ablation_allhigh.ran.fits 8658242 8332253.783130116
-eBOSS_QSO_clustering_SGC_v7_2_0.1_ablation_lowmidhigh.dat.fits 151487 149091.31551057438
-eBOSS_QSO_clustering_SGC_v7_2_0.1_ablation_lowmidhigh.ran.fits 8658242 8322451.683479121
-eBOSS_QSO_clustering_SGC_v7_2_0.1_ablation_z3high.dat.fits 151487 149171.08802160903
-eBOSS_QSO_clustering_SGC_v7_2_0.1_ablation_z3high.ran.fits 8658242 8326536.945760584
-eBOSS_QSO_clustering_SGC_v7_2_0.1.dat.fits 151487 149531.1051360781
-eBOSS_QSO_clustering_SGC_v7_2_0.1_known_allhigh.dat.fits 151487 149168.09095236848
-eBOSS_QSO_clustering_SGC_v7_2_0.1_known_allhigh.ran.fits 8658242 8326987.095233903
-eBOSS_QSO_clustering_SGC_v7_2_0.1_known_lowmidhigh.dat.fits 151487 149115.55313176842
-eBOSS_QSO_clustering_SGC_v7_2_0.1_known_lowmidhigh.ran.fits 8658242 8324242.018509841
-eBOSS_QSO_clustering_SGC_v7_2_0.1_known_z3high.dat.fits 151487 149092.074307599
-eBOSS_QSO_clustering_SGC_v7_2_0.1_known_z3high.ran.fits 8658242 8322491.890479838
-eBOSS_QSO_clustering_SGC_v7_2_0.1_plain_allhigh.dat.fits 151487 149370.1310742682
-eBOSS_QSO_clustering_SGC_v7_2_0.1_plain_allhigh.ran.fits 8658242 8338209.430338103
-eBOSS_QSO_clustering_SGC_v7_2_0.1_plain_lowmidhigh.dat.fits 151487 149234.13282911794
-eBOSS_QSO_clustering_SGC_v7_2_0.1_plain_lowmidhigh.ran.fits 8658242 8330708.002075147
-eBOSS_QSO_clustering_SGC_v7_2_0.1_plain_z3high.dat.fits 151487 149231.99188461015
-eBOSS_QSO_clustering_SGC_v7_2_0.1_plain_z3high.ran.fits 8658242 8331850.227889162
-eBOSS_QSO_clustering_SGC_v7_2_0.1.ran.fits 8658242 7798273.981553766
+This is a comparison of the standard+high-z QSO catalogs from full vs. clustering+hiz (web). The second column is the number of quasars, and the third column is the total weighted number of quasars. While the total number of quasars match, but the weighted number is off. The NN-based catalogs have the same weighted number of quasars (since we reassigned the attributes to those randoms). In the full random catalogs, the systot weights are systematically limited to <= 1.
+
+# Data
+## concatenated clustering and hiz from web
+$> for i in eBOSS_QSOandhiz_clustering_*.dat.fits; do python ~/github/eboss/testcats.py ${i};done
+eBOSS_QSOandhiz_clustering_NGC_v7_2.dat.fits                              264888 255214.937
+eBOSS_QSOandhiz_clustering_SGC_v7_2.dat.fits                              151487 149531.105
+
+## full
+$> for i in 0.1/eBOSS_QSO_clustering_*_v7_2_0.1*.dat.fits; do python ~/github/eboss/testcats.py ${i};done
+eBOSS_QSO_clustering_NGC_v7_2_0.1_ablation_allhigh.dat.fits               264888 254889.075
+eBOSS_QSO_clustering_NGC_v7_2_0.1_ablation_lowmidhigh.dat.fits            264888 255000.106
+eBOSS_QSO_clustering_NGC_v7_2_0.1_ablation_z3high.dat.fits                264888 254732.667
+eBOSS_QSO_clustering_NGC_v7_2_0.1.dat.fits                                264888 255214.937
+eBOSS_QSO_clustering_NGC_v7_2_0.1_known_allhigh.dat.fits                  264888 255076.230
+eBOSS_QSO_clustering_NGC_v7_2_0.1_known_lowmidhigh.dat.fits               264888 254948.088
+eBOSS_QSO_clustering_NGC_v7_2_0.1_known_z3high.dat.fits                   264888 254954.819
+eBOSS_QSO_clustering_NGC_v7_2_0.1_plain_allhigh.dat.fits                  264888 255674.119
+eBOSS_QSO_clustering_NGC_v7_2_0.1_plain_lowmidhigh.dat.fits               264888 254944.800
+eBOSS_QSO_clustering_NGC_v7_2_0.1_plain_z3high.dat.fits                   264888 255174.163
+eBOSS_QSO_clustering_SGC_v7_2_0.1_ablation_allhigh.dat.fits               151487 149266.503
+eBOSS_QSO_clustering_SGC_v7_2_0.1_ablation_lowmidhigh.dat.fits            151487 149091.316
+eBOSS_QSO_clustering_SGC_v7_2_0.1_ablation_z3high.dat.fits                151487 149171.088
+eBOSS_QSO_clustering_SGC_v7_2_0.1.dat.fits                                151487 149531.105
+eBOSS_QSO_clustering_SGC_v7_2_0.1_known_allhigh.dat.fits                  151487 149168.091
+eBOSS_QSO_clustering_SGC_v7_2_0.1_known_lowmidhigh.dat.fits               151487 149115.553
+eBOSS_QSO_clustering_SGC_v7_2_0.1_known_z3high.dat.fits                   151487 149092.074
+eBOSS_QSO_clustering_SGC_v7_2_0.1_plain_allhigh.dat.fits                  151487 149370.131
+eBOSS_QSO_clustering_SGC_v7_2_0.1_plain_lowmidhigh.dat.fits               151487 149234.133
+eBOSS_QSO_clustering_SGC_v7_2_0.1_plain_z3high.dat.fits                   151487 149231.992
+
+
+
+# Randoms
+## concatenated
+$> for i in eBOSS_QSOandhiz_clustering_*.ran.fits; do python ~/github/eboss/testcats.py ${i};done
+eBOSS_QSOandhiz_clustering_NGC_v7_2.ran.fits                            13475376 12698556.409
+eBOSS_QSOandhiz_clustering_SGC_v7_2.ran.fits                             8658242 8344435.360
+
+## full
+$> for i in 0.1/eBOSS_QSO_clustering_*_v7_2_0.1*.ran.fits; do python ~/github/eboss/testcats.py ${i};done
+eBOSS_QSO_clustering_NGC_v7_2_0.1_ablation_allhigh.ran.fits             13475376 12689532.144
+eBOSS_QSO_clustering_NGC_v7_2_0.1_ablation_lowmidhigh.ran.fits          13475376 12694560.611
+eBOSS_QSO_clustering_NGC_v7_2_0.1_ablation_z3high.ran.fits              13475376 12682228.166
+eBOSS_QSO_clustering_NGC_v7_2_0.1_known_allhigh.ran.fits                13475376 12699815.123
+eBOSS_QSO_clustering_NGC_v7_2_0.1_known_lowmidhigh.ran.fits             13475376 12693172.381
+eBOSS_QSO_clustering_NGC_v7_2_0.1_known_z3high.ran.fits                 13475376 12693498.774
+eBOSS_QSO_clustering_NGC_v7_2_0.1_plain_allhigh.ran.fits                13475376 12728347.598
+eBOSS_QSO_clustering_NGC_v7_2_0.1_plain_lowmidhigh.ran.fits             13475376 12692165.457
+eBOSS_QSO_clustering_NGC_v7_2_0.1_plain_z3high.ran.fits                 13475376 12704585.318
+eBOSS_QSO_clustering_NGC_v7_2_0.1.ran.fits                              13475376 12068708.527*
+eBOSS_QSO_clustering_SGC_v7_2_0.1_ablation_allhigh.ran.fits              8658242 8332253.783
+eBOSS_QSO_clustering_SGC_v7_2_0.1_ablation_lowmidhigh.ran.fits           8658242 8322451.683
+eBOSS_QSO_clustering_SGC_v7_2_0.1_ablation_z3high.ran.fits               8658242 8326536.946
+eBOSS_QSO_clustering_SGC_v7_2_0.1_known_allhigh.ran.fits                 8658242 8326987.095
+eBOSS_QSO_clustering_SGC_v7_2_0.1_known_lowmidhigh.ran.fits              8658242 8324242.019
+eBOSS_QSO_clustering_SGC_v7_2_0.1_known_z3high.ran.fits                  8658242 8322491.890
+eBOSS_QSO_clustering_SGC_v7_2_0.1_plain_allhigh.ran.fits                 8658242 8338209.430
+eBOSS_QSO_clustering_SGC_v7_2_0.1_plain_lowmidhigh.ran.fits              8658242 8330708.002
+eBOSS_QSO_clustering_SGC_v7_2_0.1_plain_z3high.ran.fits                  8658242 8331850.228
+eBOSS_QSO_clustering_SGC_v7_2_0.1.ran.fits                               8658242 7798273.982*
+
+
+The random catalogs based on the full catalogs have lower weighted number of quasars.
