@@ -23,14 +23,17 @@ setup_logging("info")
 from argparse import ArgumentParser
 ap = ArgumentParser(description='PREPARE EBOSS DATA FOR NN REGRESSION')
 ap.add_argument('--nside',  type=int, default=512)
-ap.add_argument('--cap',    default='NGC')
-ap.add_argument('--target', default='QSO')
+ap.add_argument('--cap',    type=str, default='NGC')
+ap.add_argument('--target', type=str, default='QSO')
+ap.add_argument('--slices', type=str, default=['low', 'high', 'all', 'zhigh', 'z1','z2', 'z3'], nargs='*')
+
 ns = ap.parse_args()    
 
 ## --- input parameters
-nside = ns.nside
-cap   = ns.cap
-target= ns.target
+nside  = ns.nside
+cap    = ns.cap
+target = ns.target
+slices = ns.slices
 
 ## --- z-cuts --- 
 #zcuts     = {'0.8': [0.80, 1.14],
@@ -47,7 +50,10 @@ target= ns.target
 zcuts = {'low':[0.8, 1.5],
          'high':[1.5, 2.2],
          'all':[0.8, 2.2],
-         'zhigh':[2.2, 3.5]}
+         'zhigh':[2.2, 3.5],
+         'z1':[0.8, 1.3],
+         'z2':[1.3, 1.6],
+         'z3':[1.6, 2.2]}
 
 
 output_dir    = '/home/mehdi/data/eboss/v7_2/0.1'    
@@ -79,7 +85,10 @@ systematics_name = systematics_dir + '/SDSS_WISE_HI_imageprop_nside512.h5'
 dataframe = pd.read_hdf(systematics_name, key='templates')
 logger.info('read {}'.format(systematics_name))
 
-for i, key_i in enumerate(zcuts):
+for i, key_i in enumerate(slices):
+    
+    if key_i not in slices:
+         raise RuntimeError(f'{key_i} not in {slices}')
 
     logger.info('split based on {}'.format(zcuts[key_i]))
 
