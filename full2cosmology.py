@@ -47,8 +47,8 @@ def main(zmin=0.8,
 
 
     random = EbossCatalog(rand_name_in, zmin=zmin, zmax=zmax, kind='random')
-    random.data.write(rand_name_out)    
-
+    newrandom = make_clustering_catalog_random(random.data, data.data)
+    newrandom.write(rand_name_out)    
     
     
 if __name__ == '__main__':
