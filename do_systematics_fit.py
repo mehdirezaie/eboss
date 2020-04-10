@@ -2,6 +2,9 @@ import sys
 sys.path.append('/home/mehdi/github/eboss_clustering/python')
 sys.path.append('/home/mehdi/github/eboss_clustering/bin')
 
+sys.path.append('/home/mehdi/github/LSSutils')
+from LSSutils.catalogs.combinefits import reassignment
+
 import numpy as np
 import matplotlib 
 import matplotlib.pylab as plt
@@ -21,35 +24,6 @@ from astropy import units
 from cosmo import CosmoSimple
 import redshift_failures
 import systematic_fitter 
-
-def make_clustering_catalog_random(rand, mock, seed=None):
-    
-    rand_clust = Table()
-    rand_clust['RA'] = rand['RA']*1
-    rand_clust['DEC'] = rand['DEC']*1
-    rand_clust['Z'] = rand['Z']*1
-    rand_clust['NZ'] = rand['NZ']*1
-    rand_clust['WEIGHT_FKP'] = rand['WEIGHT_FKP']*1
-    rand_clust['COMP_BOSS'] = rand['COMP_BOSS']*1
-    rand_clust['sector_SSR'] = rand['sector_SSR']*1
-
-    if not seed is None:
-        np.random.seed(seed)
-    
-    index = np.arange(len(mock))
-    ind = np.random.choice(index, size=len(rand), replace=True)
-    
-    fields = ['WEIGHT_NOZ', 'WEIGHT_CP', 'WEIGHT_SYSTOT'] 
-    for f in fields:
-        rand_clust[f] = mock[f][ind]
-
-    #-- As in real data:
-    rand_clust['WEIGHT_SYSTOT'] *= rand_clust['COMP_BOSS']
-
-    w = (rand_clust['COMP_BOSS'] > 0.5) & (rand_clust['sector_SSR'] > 0.5) 
-
-    return rand_clust[w]
-
 
 logging.basicConfig(format='%(asctime)s %(message)s')
 logger=logging.getLogger('systematics') 
@@ -170,9 +144,9 @@ def null_mocks(target, cap, ifirst, ilast, zmin, zmax):
     #-- Optional systematics
 
     input_dir = '/B/Shared/eBOSS/null'
-    for imock in range(ifirst, ilast):
+    for imock in range(ifirst, ilast+1):
 
-        output_dir = f'/home/mehdi/data/eboss/mocks/null/{imock:04d}'
+        output_dir = f'/B/Shared/mehdi/eboss/mocks/{cap}_{imock:04d}_null'
         if not os.path.isdir(output_dir):
             os.makedirs(output_dir, exist_ok=True)
         logger.info(f'Mocks will be written at: {output_dir}')
@@ -198,7 +172,7 @@ def null_mocks(target, cap, ifirst, ilast, zmin, zmax):
         #-- Make clustering catalog
         #mock_clust = make_clustering_catalog(mock_full, zmin, zmax)
         mock_clust = mock
-        rand_clust = make_clustering_catalog_random(random, mock_clust, seed=1234567)
+        rand_clust = reassignment(random, mock_clust, seed=1234567)
                                                     
         #-- Export  
         mock_name_out = output_dir+ f'/EZmock_eBOSS_{target}_{cap}_v7_{imock:04d}.dat.fits'

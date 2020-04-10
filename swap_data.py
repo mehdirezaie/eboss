@@ -14,7 +14,7 @@ import logging
 
 import sys
 sys.path.append('/home/mehdi/github/LSSutils')
-from LSSutils.catalogs.combinefits import SysWeight, EbossCatalog, make_clustering_catalog_random
+from LSSutils.catalogs.combinefits import SysWeight, EbossCatalog, reassignment
 
 def main(model='plain',
          zmin=0.8,
@@ -74,7 +74,7 @@ def main(model='plain',
 
 
     random    = EbossCatalog(rand_name_in, zmin=zmin, zmax=zmax, kind='random')
-    newrandom = make_clustering_catalog_random(random.data, data.data)
+    newrandom = reassignment(random.data, data.data)
     newrandom.write(rand_name_out)    
 
     
