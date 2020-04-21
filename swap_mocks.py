@@ -27,13 +27,13 @@ def main(imock=1,
          cap='NGC',
          target='QSO',
          version='v7',
-         versiono='0.2'):    
+         versiono='0.3'):    
 
     # 
     if 'zhigh' in slices:
         raise RuntimeError(f'zhigh is not allowed for mocks')
 
-    output_dir = f'/B/Shared/mehdi/eboss/mocks/{cap}_{imock:04d}_{cont}'
+    output_dir = f'/B/Shared/mehdi/eboss/mocks/{versiono}/{cap}_{imock:04d}_{cont}'
 
     if cont == 'contaminated':
         input_dir = '/B/Shared/eBOSS/contaminated'
@@ -109,7 +109,7 @@ if __name__ == '__main__':
     ap.add_argument('--cap', type=str, default='NGC', help='eg: NGC or SGC')
     ap.add_argument('--target', type=str, default='QSO', help='eg: QSO')
     ap.add_argument('--version', type=str, default='v7', help='eg: v7')
-    ap.add_argument('--versiono',type=str, default='0.2', help='eg: 0.2')
+    ap.add_argument('--versiono',type=str, default='0.3', help='eg: 0.3')
     ns = ap.parse_args()    
 
     #--- default
@@ -123,7 +123,7 @@ if __name__ == '__main__':
     # cap='NGC',
     # target='QSO',
     # version='v7_2',
-    # versiono='0.1'
+    # versiono='0.3'
     
     from LSSutils import setup_logging
     setup_logging('info')
