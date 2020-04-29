@@ -27,9 +27,9 @@ def main(model='plain',
          version='v7_2',
          versiono='0.1'):    
 
-    output_dir    = f'/home/mehdi/data/eboss/{version}/{versiono}/'    
-    data_name_in  = f'/home/mehdi/data/eboss/{version}/eBOSS_{target}_full_{cap}_{version}.dat.fits'
-    rand_name_in  = f'/home/mehdi/data/eboss/{version}/eBOSS_{target}_full_{cap}_{version}.ran.fits'
+    output_dir    = f'/B/Shared/mehdi/eboss/data/{version}/{versiono}/'    
+    data_name_in  = f'/B/Shared/mehdi/eboss/data/{version}/eBOSS_{target}_full_{cap}_{version}.dat.fits'
+    rand_name_in  = f'/B/Shared/mehdi/eboss/data/{version}/eBOSS_{target}_full_{cap}_{version}.ran.fits'
 
     tag           = '_'.join((version, versiono, model, zsplit))
     data_name_out = output_dir + f'eBOSS_{target}_clustering_{cap}_{tag}.dat.fits'
@@ -46,7 +46,6 @@ def main(model='plain',
              'z1':[[0.8, 1.3], None],
              'z2':[[1.3, 1.6], None],
              'z3':[[1.6, 2.2], None]}
-
 
 
 
