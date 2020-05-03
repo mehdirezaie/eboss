@@ -460,44 +460,43 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 
 
 
-## --- correlation function
-#for zlim in standard #combined zhigh
-#do
-#   if [ $zlim == "standard" ]
-#   then
-#       zrange='0.8 2.2'
-#   elif [ $zlim == "zhigh" ]
-#   then 
-#       zrange='2.2 3.5'
-#   elif [ $zlim == "combined" ]
-#   then
-#       zrange='0.8 3.5'
-#   fi
-#
-#   for cap in NGC SGC 
-#   do
-#
-#       ## --- standard treatment
-#       versioni=${version}_${versiono}
-#       galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
-#       rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
-#
-#       
-#       du -h $galcat $rancat
-#
-#       ## --- xi
-#       model=wsystot
-#       versioni=${version}_${versiono}_${model}
-#       ouname=${ouput_pk}xi_${cap}_${versioni}_${nmesh}_${zlim}.json
-#       echo $ouname
-#       mpirun -np 16 python $xi --galaxy_path $galcat \
-#                                --random_path $rancat \
-#                                --output_path $ouname \
-#                                --nmesh $nmesh --zlim ${zrange} --sys_tot
-#
-#   done
-#done
-#
+# --- correlation function
+# for zlim in zhigh #standard #combined zhigh
+# do
+#    if [ $zlim == "standard" ]
+#    then
+#        zrange='0.8 2.2'
+#    elif [ $zlim == "zhigh" ]
+#    then 
+#        zrange='2.2 3.5'
+#    elif [ $zlim == "combined" ]
+#    then
+#        zrange='0.8 3.5'
+#    fi
+
+#    for cap in NGC SGC 
+#    do
+
+#        ## --- standard treatment
+#        versioni=${version}_${versiono}
+#        galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
+#        rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
+
+#        du -h $galcat $rancat
+
+#        ## --- xi
+#        model=wsystot
+#        versioni=${version}_${versiono}_${model}
+#        ouname=${ouput_pk}xi_${cap}_${versioni}_${nmesh}_${zlim}.json
+#        echo $ouname
+#        mpirun -np 16 python $xi --galaxy_path $galcat \
+#                                 --random_path $rancat \
+#                                 --output_path $ouname \
+#                                 --nmesh $nmesh --zlim ${zrange} --sys_tot
+
+#    done
+# done
+
 
 #for cap in NGC SGC
 #do
@@ -522,61 +521,44 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 templates=/B/Shared/mehdi/templates/SDSS_WISE_HI_imageprop_nside512.h5
 axfit='21 18 6 1 2 3 4 7 8 9 10 11 12 13 14 15 16 19 20 5' # eboss columns
 oudir=${input_catn}clustering/
-#
+
 for cap in NGC SGC
 do
-	for zrange in low high zhigh all z1 z2 z3 tot
-	do
-		# default
-		mask=${input_catn}mask_${cap}.hp512.ran.fits
-		
-#        
-#        galmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_${zrange}.hp512.dat.fits
-#		ranmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_tot.hp512.ran.fits
-#		nnbar=nnbar_0.3_${cap}_systot_${zrange}.npy
-#		logfile=log_0.3_${cap}_systot_${zrange}.txt
-#
-#		echo $nnbar #$logfile $oudir
-#		#du -h $galmap $ranmap $mask
-#
-#		time mpirun -np 16 python $docl --galmap ${galmap} \
-#								   --ranmap ${ranmap} \
-#								   --photattrs ${templates} \
-#								   --mask ${mask} \
-#								   --oudir ${oudir} \
-#								   --axfit ${axfit[@]} \
-#								   --nnbar ${nnbar} \
-#								   --log ${logfile} \
-#								   --nside $nside
-#
-#		
-		# nn
-		for model in plain #ablation known
-		do
-				
-			for zsplit in allhigh lowmidhigh z3high
-			do
-				galmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_${model}_${zsplit}_${zrange}.hp512.dat.fits
-				ranmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_${model}_${zsplit}_tot.hp512.ran.fits
-				#du -h $galmap $ranmap $mask
+    for zrange in low high zhigh #all z1 z2 z3 tot
+    do
+        # default
+        mask=${input_catn}mask_${cap}.hp512.ran.fits       
+        galmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_${zrange}.hp512.dat.fits
+        ranmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_tot.hp512.ran.fits
+        
+        clfile=cl_0.3_${cap}_systot_${zrange}.npy
+        nnbar=nnbar_0.3_${cap}_systot_${zrange}.npy
+        logfile=log_0.3_${cap}_systot_${zrange}.txt
+        
+        #echo $nnbar #$logfile $oudir
+        #du -h $galmap $ranmap $mask
 
-                nnbar=nnbar_0.3_${cap}_${model}_${zsplit}_${zrange}.npy
-                logfile=log_0.3_${cap}_${model}_${zsplit}_${zrange}.txt
-                
-                echo $nnbar
-                time mpirun -np 16 python $docl --galmap ${galmap} \
-                                           --ranmap ${ranmap} \
-                                           --photattrs ${templates} \
-                                           --mask ${mask} \
-                                           --oudir ${oudir} \
-                                           --axfit ${axfit[@]} \
-                                           --nnbar ${nnbar} \
-                                           --log ${logfile} \
-                                           --nside $nside
-			done
-		
-		done
-	
-	done
+        time mpirun -np 16 python $docl --galmap ${galmap} --ranmap ${ranmap} --photattrs ${templates} --mask ${mask} --oudir ${oudir} --axfit ${axfit[@]} --clfile ${clfile} --log ${logfile} --nside $nside
+        # nn
+        for model in plain ablation known
+        do
+
+            for zsplit in allhigh lowmidhigh z3high
+            do
+                galmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_${model}_${zsplit}_${zrange}.hp512.dat.fits
+                ranmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_${model}_${zsplit}_tot.hp512.ran.fits
+                #du -h $galmap $ranmap $mask
+
+               clfile=cl_0.3_${cap}_${model}_${zsplit}_${zrange}.npy
+               nnbar=nnbar_0.3_${cap}_${model}_${zsplit}_${zrange}.npy
+               logfile=log_0.3_${cap}_${model}_${zsplit}_${zrange}.txt
+
+               #echo $nnbar
+                time mpirun -np 16 python $docl --galmap ${galmap} --ranmap ${ranmap} --photattrs ${templates} --mask ${mask} --oudir ${oudir} --axfit ${axfit[@]} --clfile ${clfile} --log ${logfile} --nside $nside
+            done
+
+        done
+
+    done
 
 done
