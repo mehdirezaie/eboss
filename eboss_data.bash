@@ -49,24 +49,24 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 #
 #for cap in NGC SGC
 #do
-#    for zcut in zhigh all low high z1 z2 z3 
-#    do 
-#        output_dir=/B/Shared/mehdi/eboss/data/${version}/${versiono}
-#        ngal_features_5fold=${output_dir}/ngal_features_${cap}_${zcut}_${nside}.5r.npy
+#    #for zcut in zhigh_racut all_racut ## only for NGC
+##    for zcut in zhigh all low high z1 z2 z3  
+#       output_dir=/B/Shared/mehdi/eboss/data/${version}/${versiono}
+#       ngal_features_5fold=${output_dir}/ngal_features_${cap}_${zcut}_${nside}.5r.npy
 #
-#        #-- define output dirs
-#        oudir_ab=${output_dir}/results/${cap}_${zcut}_${nside}/ablation/
-#        oudir_reg=${output_dir}/results/${cap}_${zcut}_${nside}/regression/            
+#       #-- define output dirs
+#       oudir_ab=${output_dir}/results/${cap}_${zcut}_${nside}/ablation/
+#       oudir_reg=${output_dir}/results/${cap}_${zcut}_${nside}/regression/            
 #
-#        #-- define output names
-#        log_ablation=eboss_data.log
-#        nn1=nn_ablation
-#        nn2=nn_plain           
-#        nn3=nn_known
-#               
-#        du -h ${ngal_features_5fold}
-#        echo $oudir_ab
-#        echo $oudir_reg
+#       #-- define output names
+#       log_ablation=eboss_data.log
+#       nn1=nn_ablation
+#       nn2=nn_plain           
+#       nn3=nn_known
+#              
+#       du -h ${ngal_features_5fold}
+#       echo $oudir_ab
+#       echo $oudir_reg
 #
 #        #-- ablation
 #        for fold in 0 1 2 3 4
@@ -80,22 +80,22 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 #        echo 'regression on ' $fold ${cap}_${zcut}
 #        
 #        #-- regression with ablation
-##        mpirun -np 5 python $nnfit --input $ngal_features_5fold \
-##                            --output ${oudir_reg}${nn1}/ \
-##                            --ablog ${oudir_ab}${log_ablation} --nside $nside
-#
-#        #-- regression with all maps
 #        mpirun -np 5 python $nnfit --input $ngal_features_5fold \
-#                           --output ${oudir_reg}${nn2}/ --nside $nside --axfit $axfit1 
+#                            --output ${oudir_reg}${nn1}/ \
+#                            --ablog ${oudir_ab}${log_ablation} --nside $nside
+#
+#       #-- regression with all maps
+#       mpirun -np 5 python $nnfit --input $ngal_features_5fold \
+#                          --output ${oudir_reg}${nn2}/ --nside $nside --axfit $axfit1 
 #
 #        #-- regression with known maps
-##        mpirun -np 5 python $nnfit --input $ngal_features_5fold \
-##                           --output ${oudir_reg}${nn3}/ --nside $nside --axfit $axfit0 
-#   done        
+#        mpirun -np 5 python $nnfit --input $ngal_features_5fold \
+#                           --output ${oudir_reg}${nn3}/ --nside $nside --axfit $axfit0 
+#  done        
 #done 
 #
-##
-##
+#
+#
 ## ---- reassignment
 ## swap the weights in the data catalogs with NN's weights
 # reassign the data attributes to randoms
@@ -104,18 +104,20 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 #
 # 4 min
 #for cap in NGC SGC 
+#for cap in NGC
 #do
 #     echo $cap $versiono
 #
 #    # standard weights
-#    #python full2cosmology.py --cap ${cap} --versiono ${versiono}
-#
+##    #python full2cosmology.py --cap ${cap} --versiono ${versiono}
+##
 #    # nn-based weights
 #    for model in plain #known ablation
 #    do
-#        for zsplit in lowmidhigh allhigh z3high
+#        for zsplit in allhighra 
+##        for zsplit in lowmidhigh allhigh z3high
 #        do
-#            if [ $zsplit == "lowmidhigh" ]
+#           if [ $zsplit == "lowmidhigh" ]
 #           then
 #               slices='low high zhigh'
 #           elif [ $zsplit == "allhigh" ]
@@ -124,16 +126,20 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 #           elif [ $zsplit == "z3high" ]
 #           then
 #               slices='z1 z2 z3 zhigh'
+#           elif [ $zsplit == "allhighra" ]
+#           then 
+#               slices='all_racut zhigh_racut'
 #           else
 #               echo $zsplit 'not known'
 #               continue
 #           fi
 #           echo $cap $model $zsplit $slices $versiono
-#           python swap_data.py --cap ${cap} --model ${model} --zsplit ${zsplit} --slices ${slices} --versiono ${versiono} 
+#           #python swap_data.py --cap ${cap} --model ${model} --zsplit ${zsplit} --slices ${slices} --versiono ${versiono} 
+#           python swap_data_racut.py --cap ${cap} --model ${model} --zsplit ${zsplit} --slices ${slices} --versiono ${versiono}
 #       done
 #   done
 #done
-#
+##
 #
 #
 #
@@ -260,25 +266,25 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 # done
 
 
-### --- pk with ra cut
-#for zlim in standard zhigh combined
-#do
-#  if [ $zlim == "standard" ]
-#  then
-#      zrange='0.8 2.2'
-#  elif [ $zlim == "zhigh" ]
-#  then 
-#      zrange='2.2 3.5'
-#  elif [ $zlim == "combined" ]
-#  then
-#      zrange='0.8 3.5'
-#  fi
-#  #echo $zrange $zlim
-#
-#  for cap in NGC # ra cut only for NGC
-#  do
-#      #echo $cap
-#
+# --- pk with ra cut
+for zlim in standard zhigh combined
+do
+  if [ $zlim == "standard" ]
+  then
+      zrange='0.8 2.2'
+  elif [ $zlim == "zhigh" ]
+  then 
+      zrange='2.2 3.5'
+  elif [ $zlim == "combined" ]
+  then
+      zrange='0.8 3.5'
+  fi
+  echo $zrange $zlim
+
+  for cap in NGC # ra cut only for NGC
+  do
+      #echo $cap
+
 
 #      ## --- standard treatment
 #      versioni=${version}_${versiono}
@@ -308,29 +314,30 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 #                               --nmesh $nmesh --zlim ${zrange} 
 #
 #
-#       ## --- NN-based treatment
-#       for model in plain #known ablation
-#       do
-#           for wtag in lowmidhigh allhigh z3high
-#           do
-#               versioni=${version}_${versiono}_${model}_${wtag}
-#               ouname=${ouput_pk}pk_${cap}_${versioni}_racut_${nmesh}_${zlim}.json
-#               galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
-#               rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
-#               echo $cap $zlim $model $wtag $zrange $nmesh $ouname
-#               du -h $galcat $rancat
-#               echo 
-#               echo 
-#               mpirun -np 16 python $pkracut --galaxy_path $galcat \
-#                                    --random_path $rancat \
-#                                    --output_path $ouname \
-#                                    --nmesh $nmesh --zlim ${zrange} --sys_tot
-# 
-#          done
-#       done
-#  done
-#done
-#
+       ## --- NN-based treatment
+       for model in plain #known ablation
+       do
+           for wtag in allhighra
+           #for wtag in lowmidhigh allhigh z3high
+           do
+               versioni=${version}_${versiono}_${model}_${wtag}
+               ouname=${ouput_pk}pk_${cap}_${versioni}_racut_${nmesh}_${zlim}.json
+               galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
+               rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
+               echo $cap $zlim $model $wtag $zrange $nmesh $ouname
+               du -h $galcat $rancat
+               echo 
+               echo 
+               mpirun -np 16 python $pkracut --galaxy_path $galcat \
+                                    --random_path $rancat \
+                                    --output_path $ouname \
+                                    --nmesh $nmesh --zlim ${zrange} --sys_tot
+ 
+          done
+       done
+  done
+done
+
 ### extend zmax for high-z
 #for zmax in 2.8 3.0 3.2 3.4
 #do
@@ -515,50 +522,50 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 #done
 
 
-#--- mean density
+#--- Angular clustering
 # data/eboss/v7_2/0.3/eBOSS_QSO_clustering_NGC_v7_2_0.3_ablation_lowmidhigh_zhigh.hp512.dat.fits
 
-templates=/B/Shared/mehdi/templates/SDSS_WISE_HI_imageprop_nside512.h5
-axfit='21 18 6 1 2 3 4 7 8 9 10 11 12 13 14 15 16 19 20 5' # eboss columns
-oudir=${input_catn}clustering/
+# templates=/B/Shared/mehdi/templates/SDSS_WISE_HI_imageprop_nside512.h5
+# axfit='21 18 6 1 2 3 4 7 8 9 10 11 12 13 14 15 16 19 20 5' # eboss columns
+# oudir=${input_catn}clustering/
 
-for cap in NGC SGC
-do
-    for zrange in low high zhigh #all z1 z2 z3 tot
-    do
-        # default
-        mask=${input_catn}mask_${cap}.hp512.ran.fits       
-        galmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_${zrange}.hp512.dat.fits
-        ranmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_tot.hp512.ran.fits
+# for cap in NGC SGC
+# do
+#     for zrange in low high zhigh #all z1 z2 z3 tot
+#     do
+#         # default
+#         mask=${input_catn}mask_${cap}.hp512.ran.fits       
+#         galmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_${zrange}.hp512.dat.fits
+#         ranmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_tot.hp512.ran.fits
         
-        clfile=cl_0.3_${cap}_systot_${zrange}.npy
-        nnbar=nnbar_0.3_${cap}_systot_${zrange}.npy
-        logfile=log_0.3_${cap}_systot_${zrange}.txt
+#         clfile=cl_0.3_${cap}_systot_${zrange}.npy
+#         nnbar=nnbar_0.3_${cap}_systot_${zrange}.npy
+#         logfile=log_0.3_${cap}_systot_${zrange}.txt
         
-        #echo $nnbar #$logfile $oudir
-        #du -h $galmap $ranmap $mask
+#         #echo $nnbar #$logfile $oudir
+#         #du -h $galmap $ranmap $mask
 
-        time mpirun -np 16 python $docl --galmap ${galmap} --ranmap ${ranmap} --photattrs ${templates} --mask ${mask} --oudir ${oudir} --axfit ${axfit[@]} --clfile ${clfile} --log ${logfile} --nside $nside
-        # nn
-        for model in plain ablation known
-        do
+#         time mpirun -np 16 python $docl --galmap ${galmap} --ranmap ${ranmap} --photattrs ${templates} --mask ${mask} --oudir ${oudir} --axfit ${axfit[@]} --clfile ${clfile} --log ${logfile} --nside $nside
+#         # nn
+#         for model in plain ablation known
+#         do
 
-            for zsplit in allhigh lowmidhigh z3high
-            do
-                galmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_${model}_${zsplit}_${zrange}.hp512.dat.fits
-                ranmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_${model}_${zsplit}_tot.hp512.ran.fits
-                #du -h $galmap $ranmap $mask
+#             for zsplit in allhigh lowmidhigh z3high
+#             do
+#                 galmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_${model}_${zsplit}_${zrange}.hp512.dat.fits
+#                 ranmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.3_${model}_${zsplit}_tot.hp512.ran.fits
+#                 #du -h $galmap $ranmap $mask
 
-               clfile=cl_0.3_${cap}_${model}_${zsplit}_${zrange}.npy
-               nnbar=nnbar_0.3_${cap}_${model}_${zsplit}_${zrange}.npy
-               logfile=log_0.3_${cap}_${model}_${zsplit}_${zrange}.txt
+#                clfile=cl_0.3_${cap}_${model}_${zsplit}_${zrange}.npy
+#                nnbar=nnbar_0.3_${cap}_${model}_${zsplit}_${zrange}.npy
+#                logfile=log_0.3_${cap}_${model}_${zsplit}_${zrange}.txt
 
-               #echo $nnbar
-                time mpirun -np 16 python $docl --galmap ${galmap} --ranmap ${ranmap} --photattrs ${templates} --mask ${mask} --oudir ${oudir} --axfit ${axfit[@]} --clfile ${clfile} --log ${logfile} --nside $nside
-            done
+#                #echo $nnbar
+#                 time mpirun -np 16 python $docl --galmap ${galmap} --ranmap ${ranmap} --photattrs ${templates} --mask ${mask} --oudir ${oudir} --axfit ${axfit[@]} --clfile ${clfile} --log ${logfile} --nside $nside
+#             done
 
-        done
+#         done
 
-    done
+#     done
 
-done
+# done

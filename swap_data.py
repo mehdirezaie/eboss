@@ -45,7 +45,9 @@ def main(model='plain',
              'zhigh':[[2.2, 3.5], None],
              'z1':[[0.8, 1.3], None],
              'z2':[[1.3, 1.6], None],
-             'z3':[[1.6, 2.2], None]}
+             'z3':[[1.6, 2.2], None],
+             'all_racut':[[0.8, 2.2], None],
+             'zhigh_racut':[[2.2, 3.5], None]}
 
 
 

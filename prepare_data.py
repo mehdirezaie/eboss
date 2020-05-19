@@ -29,7 +29,7 @@ def main(ns):
     # step 2. apply a z cut, project to HEALPIX, make a df
     # split into 5-fold, save as .npy
     RCat = RegressionCatalog(data, random, dataframe)
-    RCat(ns.slices, zcuts, ns.output_dir, cap=ns.cap, efficient=True, columns=columns)
+    RCat(ns.slices, zcuts, ns.output_dir, nside=ns.nside, cap=ns.cap, efficient=True, columns=columns)
     
     
     
@@ -41,7 +41,7 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
     
     ap = ArgumentParser(description='PREPARE EBOSS DATA FOR NN REGRESSION')
-    ap.add_argument('-d','--data_name', type=str, required=True)
+    ap.add_argument('-d', '--data_name', type=str, required=True)
     ap.add_argument('-r', '--random_name', type=str, required=True)
     ap.add_argument('-s', '--systematics_name', type=str, required=True)
     ap.add_argument('-o', '--output_dir', type=str, required=True)    
@@ -52,6 +52,10 @@ if __name__ == '__main__':
     ap.add_argument('--log',       default='none')    
     ns = ap.parse_args()    
     
+    for (a,b) in ns.__dict__.items():
+        print(f'{a:20s}: {b}')
+    
+
     # output directory
     if not os.path.exists(ns.output_dir):
         os.makedirs(ns.output_dir)
