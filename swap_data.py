@@ -64,13 +64,13 @@ def main(model='plain',
         logger.info('create {}'.format(output_dir))
         #os.makedirs(output_dir)
 
-    for zcut in zcuts:
+    for zcut in slices:
         logger.info(f'zcut : {zcut}')
         zcuts[zcut][1]=SysWeight(weight(zcut, model))
 
     data = EbossCatalog(data_name_in, zmin=zmin, zmax=zmax, kind='galaxy')
     data.swap(zcuts=zcuts, slices=slices)
-    data.make_plots(zcuts, slices=slices, filename=plotname)
+    #data.make_plots(zcuts, slices=slices, filename=plotname)
     data.to_fits(data_name_out)
 
 
@@ -84,16 +84,16 @@ if __name__ == '__main__':
         
     from argparse import ArgumentParser
     ap = ArgumentParser(description='Prepare EBOSS Data and Random Catalogs')
-    ap.add_argument('--model',   type=str,   default='plain', help='eg:plain, other options are ablation and known ')
+    ap.add_argument('-m','--model',   type=str,   default='plain', help='eg:plain, other options are ablation and known ')
     ap.add_argument('--zmin',    type=float, default=0.8, help='eg:0.8')
     ap.add_argument('--zmax',    type=float, default=3.5, help='eg:3.5')
-    ap.add_argument('--nside',   type=int,   default=512, help='eg:512')
-    ap.add_argument('--zsplit',  type=str,   default='lowmidhigh', help='eg: lowmidhigh')
-    ap.add_argument('--slices',  type=str,   default=['low', 'high', 'zhigh'], nargs='*', help="eg:['low', 'high', 'zhigh']")
-    ap.add_argument('--cap',     type=str,   default='NGC', help='eg: NGC or SGC')
-    ap.add_argument('--target',  type=str,   default='QSO', help='eg: QSO')
-    ap.add_argument('--version', type=str,   default='v7_2', help='eg: v7_2')
-    ap.add_argument('--versiono',type=str,   default='0.3', help='eg: 0.3')
+    ap.add_argument('-n', '--nside',   type=int,   default=512, help='eg:512')
+    ap.add_argument('-zs', '--zsplit',  type=str,   default='lowmidhigh', help='eg: lowmidhigh')
+    ap.add_argument('-sl', '--slices',  type=str,   default=['low', 'high', 'zhigh'], nargs='*', help="eg:['low', 'high', 'zhigh']")
+    ap.add_argument('-c', '--cap',     type=str,   default='NGC', help='eg: NGC or SGC')
+    ap.add_argument('-t', '--target',  type=str,   default='QSO', help='eg: QSO')
+    ap.add_argument('-v', '--version', type=str,   default='v7_2', help='eg: v7_2')
+    ap.add_argument('-vo', '--versiono',type=str,   default='0.3', help='eg: 0.3')
     ns = ap.parse_args()    
 
     #--- default
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     kwargs = ns.__dict__
     for (a,b) in zip(kwargs.keys(), kwargs.values()):
         logger.info('{:6s}{:15s} : {}'.format('', a, b))
-        
+    
     # -- call the function    
     main(**kwargs)
         
