@@ -18,10 +18,10 @@ pkracut=${HOME}/github/LSSutils/scripts/analysis/run_pk_racut.py
 
 
 
-nside=128
+nside=256
 nmesh=512
 version=v7_2
-versiono=0.4
+versiono=0.5
 versioni=${version}_${versiono}
 ouput_pk=/B/Shared/mehdi/eboss/data/${version}/${versiono}/
 input_catn=/B/Shared/mehdi/eboss/data/${version}/${versiono}/
@@ -44,17 +44,15 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 #     output_dir=${input_catn}
 #     nside=$nside
 #     cap=$cap
-#     slices='low high all zhigh z1 z2 z3'    
-#     du -h $data $random $systematics     
+#     slices='low high all zhigh z1 z2 z3'
+    
+#     du -h $data $random $systematics 
 #     echo ${cap} ${nside} ${version} ${versiono} ${output_dir} ${slices}
 #     python prepare_data.py -d ${data} -r ${random} -s ${systematics} -o ${output_dir} -n ${nside} -c ${cap} -sl ${slices}
 # done
-#
 
-#
 # --- perform regression
 # 553 min
-#
 #for cap in NGC SGC
 #do
 #    #for zcut in zhigh_racut all_racut ## only for NGC
@@ -100,7 +98,7 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 #        #-- regression with known maps
 #        mpirun -np 5 python $nnfit --input $ngal_features_5fold \
 #                           --output ${oudir_reg}${nn3}/ --nside $nside --axfit $axfit0 
-# done        
+#   done        
 #done 
 #
 #
@@ -112,109 +110,109 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 #
 #
 # 4 min
-# for cap in NGC SGC 
-# do
-#     echo $cap $versiono
+#for cap in NGC SGC 
+#do
+#    echo $cap $versiono
 #
-#    # standard weights
-#    #python full2cosmology.py --cap ${cap} --versiono ${versiono}
+#   # standard weights
+#   #python full2cosmology.py --cap ${cap} --versiono ${versiono}
 #
-#    # nn-based weights
-#    for model in known ablation plain
-#    do
-#        #for zsplit in allhighra 
-#        for zsplit in lowmidhigh allhigh z3high
-#        do
-#           if [ $zsplit == "lowmidhigh" ]
-#           then
-#               slices='low high zhigh'
-#           elif [ $zsplit == "allhigh" ]
-#           then
-#               slices='all zhigh'
-#           elif [ $zsplit == "z3high" ]
-#           then
-#               slices='z1 z2 z3 zhigh'
-#           elif [ $zsplit == "allhighra" ]
-#           then 
-#               slices='all_racut zhigh_racut'
-#           else
-#               echo $zsplit 'not known'
-#               continue
-#           fi
-#           echo $cap $model $zsplit $slices $versiono $nside
-#           python swap_data.py -c ${cap} -m ${model} -zs ${zsplit} -sl ${slices} -vo ${versiono} -n $nside
-#           #python swap_data_racut.py --cap ${cap} --model ${model} --zsplit ${zsplit} --slices ${slices} --versiono ${versiono} -n $nside
-#       done
-#   done
-# done
+#   # nn-based weights
+#   for model in known ablation plain
+#   do
+#       #for zsplit in allhighra 
+#       for zsplit in lowmidhigh allhigh z3high
+#       do
+#          if [ $zsplit == "lowmidhigh" ]
+#          then
+#              slices='low high zhigh'
+#          elif [ $zsplit == "allhigh" ]
+#          then
+#              slices='all zhigh'
+#          elif [ $zsplit == "z3high" ]
+#          then
+#              slices='z1 z2 z3 zhigh'
+#          elif [ $zsplit == "allhighra" ]
+#          then 
+#              slices='all_racut zhigh_racut'
+#          else
+#              echo $zsplit 'not known'
+#              continue
+#          fi
+#          echo $cap $model $zsplit $slices $versiono $nside
+#          python swap_data.py -c ${cap} -m ${model} -zs ${zsplit} -sl ${slices} -vo ${versiono} -n $nside
+#          #python swap_data_racut.py --cap ${cap} --model ${model} --zsplit ${zsplit} --slices ${slices} --versiono ${versiono} -n $nside
+#      done
+#  done
+#done
 
 
 #
-# --- standard treatment is versiono=0.3
-# for zlim in standard zhigh combined
-# do
-#   if [ $zlim == "standard" ]
-#   then
-#      zrange='0.8 2.2'
-#   elif [ $zlim == "zhigh" ]
-#   then 
-#      zrange='2.2 3.5'
-#  elif [ $zlim == "combined" ]
-#  then
-#      zrange='0.8 3.5'
-#  fi
-
-#  for cap in NGC SGC
+#
+#  for zlim in standard zhigh combined
 #  do
-#      echo $cap $zrange $zlim
+#    if [ $zlim == "standard" ]
+#    then
+#       zrange='0.8 2.2'
+#    elif [ $zlim == "zhigh" ]
+#    then 
+#       zrange='2.2 3.5'
+#   elif [ $zlim == "combined" ]
+#   then
+#       zrange='0.8 3.5'
+#   fi
 
-#      ##--- standard treatment   
+#   for cap in NGC SGC
+#   do
+#       echo $cap $zrange $zlim
+ 
+#       ##--- standard treatment   
 #      galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
 #      rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits     
 #      du -h $galcat $rancat
-
+#
 #      model=wsystot
 #      versioni=${version}_${versiono}_${model}
 #      ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
 #      echo $ouname
-# #     mpirun -np 16 python $pk --galaxy_path $galcat \
-# #                              --random_path $rancat \
-# #                              --output_path $ouname \
-# #                              --nmesh $nmesh --zlim ${zrange} --sys_tot
-
+#     mpirun -np 16 python $pk --galaxy_path $galcat \
+#                               --random_path $rancat \
+#                               --output_path $ouname \
+#                               --nmesh $nmesh --zlim ${zrange} --sys_tot
+#
 #      model=wosystot
 #      versioni=${version}_${versiono}_${model}
 #      ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
 #      echo $ouname
-# #     mpirun -np 16 python $pk --galaxy_path $galcat \
-# #                              --random_path $rancat \
-# #                              --output_path $ouname \
-# #                              --nmesh $nmesh --zlim ${zrange} 
-# #
+#      mpirun -np 16 python $pk --galaxy_path $galcat \
+#                               --random_path $rancat \
+#                               --output_path $ouname \
+#                               --nmesh $nmesh --zlim ${zrange} 
+#
 
-#        ## --- NN-based treatment
-#       for model in plain known ablation
-#       do
-#           for wtag in lowmidhigh allhigh z3high
-        
-#           do
-#               versioni=${version}_${versiono}_${model}_${wtag}
-#               ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
-#               galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
-#               rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
-#               echo $cap $zlim $model $wtag $zrange $nmesh $ouname
-#               du -h $galcat $rancat
-#               echo 
-#               echo 
+#         ## --- NN-based treatment
+#        for model in plain known ablation
+#        do
+#            for wtag in lowmidhigh allhigh z3high
+         
+#            do
+#                versioni=${version}_${versiono}_${model}_${wtag}
+#                ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
+#                galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
+#                rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
+#                echo $cap $zlim $model $wtag $zrange $nmesh $ouname
+#                du -h $galcat $rancat
+#                echo 
+#                echo 
 #               mpirun -np 16 python $pk --galaxy_path $galcat \
 #                                    --random_path $rancat \
 #                                    --output_path $ouname \
 #                                    --nmesh $nmesh --zlim ${zrange} --sys_tot
 
-#          done
-#       done
+#           done
+#        done
+#   done
 #  done
-# done
 
 
 
@@ -506,8 +504,7 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 
 
 
-# from here on nside is 512
-
+# from here on nside is 512 again
 nside=512
 
 # for cap in NGC SGC
