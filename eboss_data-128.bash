@@ -5,7 +5,7 @@ eval "$(/home/mehdi/miniconda3/bin/conda shell.bash hook)"
 conda activate py3p6
 
 export NUMEXPR_MAX_THREADS=2
-
+export PYTHONPATH=${HOME}/github/LSSutils:${PYTHONPATH}
 
 ablation=${HOME}/github/LSSutils/scripts/analysis/ablation_tf_old.py
 multfit=${HOME}/github/LSSutils/scripts/analysis/mult_fit.py
@@ -20,6 +20,8 @@ pkracut=${HOME}/github/LSSutils/scripts/analysis/run_pk_racut.py
 
 nside=128
 nmesh=512
+dk=0.002
+boxsize=6600 # currently not using
 version=v7_2
 versiono=0.4
 versioni=${version}_${versiono}
@@ -27,8 +29,7 @@ ouput_pk=/B/Shared/mehdi/eboss/data/${version}/${versiono}/
 input_catn=/B/Shared/mehdi/eboss/data/${version}/${versiono}/
 input_cato=/B/Shared/mehdi/eboss/data/${version}/
 
-
-
+# known maps, depth, ebv, psfi skyi
 axfit0='0 2 5 13'
 # no w1 or depth-g maps 
 axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
@@ -49,8 +50,6 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 #     echo ${cap} ${nside} ${version} ${versiono} ${output_dir} ${slices}
 #     python prepare_data.py -d ${data} -r ${random} -s ${systematics} -o ${output_dir} -n ${nside} -c ${cap} -sl ${slices}
 # done
-#
-
 #
 # --- perform regression
 # 553 min
@@ -151,358 +150,67 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 
 #
 # --- standard treatment is versiono=0.3
-# for zlim in standard zhigh combined
-# do
-#   if [ $zlim == "standard" ]
-#   then
-#      zrange='0.8 2.2'
-#   elif [ $zlim == "zhigh" ]
-#   then 
-#      zrange='2.2 3.5'
-#  elif [ $zlim == "combined" ]
-#  then
-#      zrange='0.8 3.5'
-#  fi
+for zlim in standard zhigh combined
+do
+  if [ $zlim == "standard" ]
+  then
+      zrange='0.8 2.2'
+  elif [ $zlim == "zhigh" ]
+  then 
+      zrange='2.2 3.5'
+  elif [ $zlim == "combined" ]
+  then
+      zrange='0.8 3.5'
+  fi
+  #echo $zrange $zlim
 
-#  for cap in NGC SGC
-#  do
-#      echo $cap $zrange $zlim
-
-#      ##--- standard treatment   
+  for cap in NGC SGC
+  do
+      #echo $cap
+      ## --- standard treatment
+#      versioni=${version}_${versiono}
 #      galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
 #      rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits     
 #      du -h $galcat $rancat
-
+#      # --- power spectrum
 #      model=wsystot
 #      versioni=${version}_${versiono}_${model}
 #      ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
 #      echo $ouname
-# #     mpirun -np 16 python $pk --galaxy_path $galcat \
-# #                              --random_path $rancat \
-# #                              --output_path $ouname \
-# #                              --nmesh $nmesh --zlim ${zrange} --sys_tot
-
+ #     mpirun -np 16 python $pk -g $galcat -r $rancat -o $ouname \
+ #                              -n $nmesh -z ${zrange} --dk $dk  --use_systot
+#
+#                               
 #      model=wosystot
 #      versioni=${version}_${versiono}_${model}
 #      ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
 #      echo $ouname
-# #     mpirun -np 16 python $pk --galaxy_path $galcat \
-# #                              --random_path $rancat \
-# #                              --output_path $ouname \
-# #                              --nmesh $nmesh --zlim ${zrange} 
-# #
-
-#        ## --- NN-based treatment
-#       for model in plain known ablation
-#       do
-#           for wtag in lowmidhigh allhigh z3high
-        
-#           do
-#               versioni=${version}_${versiono}_${model}_${wtag}
-#               ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
-#               galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
-#               rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
-#               echo $cap $zlim $model $wtag $zrange $nmesh $ouname
-#               du -h $galcat $rancat
-#               echo 
-#               echo 
-#               mpirun -np 16 python $pk --galaxy_path $galcat \
-#                                    --random_path $rancat \
-#                                    --output_path $ouname \
-#                                    --nmesh $nmesh --zlim ${zrange} --sys_tot
-
-#          done
-#       done
-#  done
-# done
+#      mpirun -np 16 python $pk -g $galcat -r $rancat -o $ouname \
+#                               -n $nmesh -z ${zrange} --dk $dk
 
 
-
-
-
-## --- clustering of the concatenated catalogs
-# --- only testing the full and clustering catalogs
-# for zlim in standard zhigh combined
-# do
-#     if [ $zlim == "standard" ]
-#     then
-#         zrange='0.8 2.2'
-#     elif [ $zlim == "zhigh" ]
-#     then 
-#         zrange='2.2 3.5'
-#     elif [ $zlim == "combined" ]
-#     then
-#         zrange='0.8 3.5'
-#     fi
-#     #echo $zrange $zlim
-
-#     for cap in NGC SGC
-#     do
-#         #echo $cap
-
-
-#         ## --- standard treatment
-#         galcat=${input_cato}eBOSS_QSOandhiz_clustering_${cap}_${version}.dat.fits
-#         rancat=${input_cato}eBOSS_QSOandhiz_clustering_${cap}_${version}.ran.fits
-#         du -h $galcat $rancat
-
-#         model=wsystotnhiz
-#         versioni=${version}_${versiono}_${model}
-#         ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
-#         echo $ouname
-#         mpirun -np 16 python $pk --galaxy_path $galcat \
-#                                  --random_path $rancat \
-#                                  --output_path $ouname \
-#                                  --nmesh $nmesh --zlim ${zrange} --sys_tot
-      
-#         model=wosystotnhiz
-#         versioni=${version}_${versiono}_${model}
-#         ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
-#         echo $ouname
-#         mpirun -np 16 python $pk --galaxy_path $galcat \
-#                                  --random_path $rancat \
-#                                  --output_path $ouname \
-#                                  --nmesh $nmesh --zlim ${zrange} 
+       ## --- NN-based treatment
+       for model in plain known ablation
+       do
+           for wtag in lowmidhigh allhigh z3high
+           
+           do
+               versioni=${version}_${versiono}_${model}_${wtag}
+               ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
+               galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
+               rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
+               echo $cap $zlim $model $wtag $zrange $nmesh $ouname
+               du -h $galcat $rancat
+               echo 
+               echo 
+                mpirun -np 16 python $pk -g $galcat -r $rancat -o $ouname \
+                                       -n $nmesh -z ${zrange} --dk $dk --use_systot
    
-#     done
-# done
+          done
+       done
+  done
+done
 
-
-# --- pk with ra cut
-# for zlim in standard zhigh combined
-# do
-#   if [ $zlim == "standard" ]
-#   then
-#       zrange='0.8 2.2'
-#   elif [ $zlim == "zhigh" ]
-#   then 
-#       zrange='2.2 3.5'
-#   elif [ $zlim == "combined" ]
-#   then
-#       zrange='0.8 3.5'
-#   fi
-#   echo $zrange $zlim
-
-#   for cap in NGC # ra cut only for NGC
-#   do
-#       #echo $cap
-#      ## --- standard treatment
-#      versioni=${version}_${versiono}
-#      galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
-#      rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
-#
-#    
-#      du -h $galcat $rancat
-#
-#      ## --- power spectrum
-#      model=wsystot_racut
-#      versioni=${version}_${versiono}_${model}
-#      ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
-#      echo $ouname
-#      mpirun -np 8 python $pkracut --galaxy_path $galcat \
-#                               --random_path $rancat \
-#                               --output_path $ouname \
-#                               --nmesh $nmesh --zlim ${zrange} --sys_tot
-#
-#      model=wosystot_racut
-#      versioni=${version}_${versiono}_${model}
-#      ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
-#      echo $ouname
-#      mpirun -np 8 python $pkracut --galaxy_path $galcat \
-#                               --random_path $rancat \
-#                               --output_path $ouname \
-#                               --nmesh $nmesh --zlim ${zrange} 
-#
-#
-#        ## --- NN-based treatment
-#        for model in plain #known ablation
-#        do
-#            for wtag in allhighra
-#            #for wtag in lowmidhigh allhigh z3high
-#            do
-#                versioni=${version}_${versiono}_${model}_${wtag}
-#                ouname=${ouput_pk}pk_${cap}_${versioni}_racut_${nmesh}_${zlim}.json
-#                galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
-#                rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
-#                echo $cap $zlim $model $wtag $zrange $nmesh $ouname
-#                du -h $galcat $rancat
-#                echo 
-#                echo 
-#                mpirun -np 16 python $pkracut --galaxy_path $galcat \
-#                                     --random_path $rancat \
-#                                     --output_path $ouname \
-#                                     --nmesh $nmesh --zlim ${zrange} --sys_tot
- 
-#           done
-#        done
-#   done
-# done
-
-## extend zmax for high-z
-#for zmax in 2.8 3.0 3.2 3.4
-#do
-#   zrange='2.2 '${zmax}
-#   zlim=hizextend$zmax
-#   echo $zrange $zlim
-#
-#   for cap in NGC SGC
-#   do
-#       #echo $cap
-#       ## --- standard treatment
-#       versioni=${version}_${versiono}
-#       galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
-#       rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
-#
-#     
-#       du -h $galcat $rancat
-#
-#       ## --- power spectrum
-#       model=wsystot
-#       versioni=${version}_${versiono}_${model}
-#       ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
-#       echo $ouname
-#       mpirun -np 16 python $pk --galaxy_path $galcat \
-#                                --random_path $rancat \
-#                                --output_path $ouname \
-#                                --nmesh $nmesh --zlim ${zrange} --sys_tot
-#
-#       model=wosystot
-#       versioni=${version}_${versiono}_${model}
-#       ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
-#       echo $ouname
-#       mpirun -np 16 python $pk --galaxy_path $galcat \
-#                                --random_path $rancat \
-#                                --output_path $ouname \
-#                                --nmesh $nmesh --zlim ${zrange} 
-#
-#
-#       ## --- NN-based treatment
-#       for model in plain #known ablation
-#       do
-#           for wtag in lowmidhigh allhigh z3high
-#           do
-#               versioni=${version}_${versiono}_${model}_${wtag}
-#               ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
-#               galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
-#               rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
-#               echo $cap $zlim $model $wtag $zrange $nmesh $ouname
-#               du -h $galcat $rancat
-#               echo 
-#               echo 
-#               mpirun -np 16 python $pk --galaxy_path $galcat \
-#                                    --random_path $rancat \
-#                                    --output_path $ouname \
-#                                    --nmesh $nmesh --zlim ${zrange} --sys_tot
-# 
-#          done
-#       done
-#   done
-#done
-
-#
-#
-##---- extending z-max 
-## in hope of getting a better quadrupole
-#for zmax in 2.4 2.6 2.8 3.0
-#do
-#   zrange='0.8 '${zmax}
-#   zlim=zextend$zmax
-#   echo $zrange $zlim
-#
-#   for cap in NGC SGC
-#   do
-#       #echo $cap
-#
-#
-#       ## --- standard treatment
-#       versioni=${version}_${versiono}
-#       galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
-#       rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
-#
-#       
-#       du -h $galcat $rancat
-#
-#       ## --- power spectrum
-#       model=wsystot
-#       versioni=${version}_${versiono}_${model}
-#       ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
-#       echo $ouname
-#       mpirun -np 8 python $pk --galaxy_path $galcat \
-#                                --random_path $rancat \
-#                                --output_path $ouname \
-#                                --nmesh $nmesh --zlim ${zrange} --sys_tot
-#
-#       model=wosystot
-##       versioni=${version}_${versiono}_${model}
-##       ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
-##       echo $ouname
-##       mpirun -np 8 python $pk --galaxy_path $galcat \
-##                                --random_path $rancat \
-##                                --output_path $ouname \
-##                                --nmesh $nmesh --zlim ${zrange} 
-##
-##
-##        ## --- NN-based treatment
-#        for model in plain #known ablation
-#        do
-#            for wtag in lowmidhigh allhigh z3high
-#            do
-#                versioni=${version}_${versiono}_${model}_${wtag}
-#                ouname=${ouput_pk}pk_${cap}_${versioni}_${nmesh}_${zlim}.json
-#                galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
-#                rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
-#                echo $cap $zlim $model $wtag $zrange $nmesh $ouname
-#                du -h $galcat $rancat
-#                echo 
-#                echo 
-#                mpirun -np 16 python $pk --galaxy_path $galcat \
-#                                     --random_path $rancat \
-#                                     --output_path $ouname \
-#                                     --nmesh $nmesh --zlim ${zrange} --sys_tot
-#    
-#           done
-#        done
-#  done
-#done
-
-
-
-# --- correlation function
-# for zlim in zhigh #standard #combined zhigh
-# do
-#    if [ $zlim == "standard" ]
-#    then
-#        zrange='0.8 2.2'
-#    elif [ $zlim == "zhigh" ]
-#    then 
-#        zrange='2.2 3.5'
-#    elif [ $zlim == "combined" ]
-#    then
-#        zrange='0.8 3.5'
-#    fi
-
-#    for cap in NGC SGC 
-#    do
-
-#        ## --- standard treatment
-#        versioni=${version}_${versiono}
-#        galcat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.dat.fits
-#        rancat=${input_catn}eBOSS_QSO_clustering_${cap}_${versioni}.ran.fits
-
-#        du -h $galcat $rancat
-
-#        ## --- xi
-#        model=wsystot
-#        versioni=${version}_${versiono}_${model}
-#        ouname=${ouput_pk}xi_${cap}_${versioni}_${nmesh}_${zlim}.json
-#        echo $ouname
-#        mpirun -np 16 python $xi --galaxy_path $galcat \
-#                                 --random_path $rancat \
-#                                 --output_path $ouname \
-#                                 --nmesh $nmesh --zlim ${zrange} --sys_tot
-
-#    done
-# done
 
 
 
@@ -527,7 +235,6 @@ nside=512
 
 
 #--- Angular clustering
-# data/eboss/v7_2/0.3/eBOSS_QSO_clustering_NGC_v7_2_0.3_ablation_lowmidhigh_zhigh.hp512.dat.fits
 
 # templates=/B/Shared/mehdi/templates/SDSS_WISE_HI_imageprop_nside512.h5
 # axfit='21 18 6 1 2 3 4 7 8 9 10 11 12 13 14 15 16 19 20 5' # eboss columns
@@ -544,9 +251,9 @@ nside=512
 # #         galmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.4_${zrange}.hp512.dat.fits
 # #         ranmap=${input_catn}eBOSS_QSO_clustering_${cap}_v7_2_0.4_tot.hp512.ran.fits
         
-# #         clfile=cl_0.3_${cap}_systot_${zrange}.npy
-# #         nnbar=nnbar_0.3_${cap}_systot_${zrange}.npy
-# #         logfile=log_0.3_${cap}_systot_${zrange}.txt
+# #         clfile=cl_${versiono}_${cap}_systot_${zrange}.npy
+# #         nnbar=nnbar_${versiono}_${cap}_systot_${zrange}.npy
+# #         logfile=log_${versiono}_${cap}_systot_${zrange}.txt
         
 # #         #echo $nnbar #$logfile $oudir
 # #         #du -h $galmap $ranmap $mask
