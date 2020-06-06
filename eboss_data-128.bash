@@ -4,14 +4,10 @@
 eval "$(/home/mehdi/miniconda3/bin/conda shell.bash hook)"
 conda activate py3p6
 
-<<<<<<< HEAD
 export NUMEXPR_MAX_THREADS=4
 export KMP_AFFINITY="granularity=fine,compact,1,0"
 export OMP_NUM_THREADS=4
-=======
-export NUMEXPR_MAX_THREADS=2
 export PYTHONPATH=${HOME}/github/LSSutils:${PYTHONPATH}
->>>>>>> 74d78a9d3bf7a6fc5aa549d26f53f9d1eb471c9a
 
 ablation=${HOME}/github/LSSutils/scripts/analysis/ablation_tf_old.py
 multfit=${HOME}/github/LSSutils/scripts/analysis/mult_fit.py
