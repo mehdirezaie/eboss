@@ -4,8 +4,9 @@
 eval "$(/home/mehdi/miniconda3/bin/conda shell.bash hook)"
 conda activate py3p6
 
-export NUMEXPR_MAX_THREADS=2
-
+export NUMEXPR_MAX_THREADS=4
+export KMP_AFFINITY="granularity=fine,compact,1,0"
+export OMP_NUM_THREADS=4
 
 ablation=${HOME}/github/LSSutils/scripts/analysis/ablation_tf_old.py
 multfit=${HOME}/github/LSSutils/scripts/analysis/mult_fit.py
@@ -23,9 +24,10 @@ nmesh=512
 version=v7_2
 versiono=0.4
 versioni=${version}_${versiono}
-ouput_pk=/B/Shared/mehdi/eboss/data/${version}/${versiono}/
-input_catn=/B/Shared/mehdi/eboss/data/${version}/${versiono}/
-input_cato=/B/Shared/mehdi/eboss/data/${version}/
+path_data=${HOME}/data/
+ouput_pk=${path_data}eboss/data/${version}/${versiono}/
+input_catn=${path_data}eboss/data/${version}/${versiono}/
+input_cato=${path_data}eboss/data/${version}/
 
 
 
@@ -55,37 +57,38 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 # --- perform regression
 # 553 min
 #
-#for cap in NGC SGC
-#do
-#    #for zcut in zhigh_racut all_racut ## only for NGC
-#    for zcut in all low high z1 z2 z3 zhigh 
-#    do
-#       output_dir=${input_catn}
-#       ngal_features_5fold=${output_dir}ngal_features_${cap}_${zcut}_${nside}.5r.npy
-#
-#       #-- define output dirs
-#       oudir_ab=${output_dir}results/${cap}_${zcut}_${nside}/ablation/
-#       oudir_reg=${output_dir}results/${cap}_${zcut}_${nside}/regression/            
-#
-#       #-- define output names
-#       log_ablation=eboss_data.log
-#       nn1=nn_ablation
-#       nn2=nn_plain           
-#       nn3=nn_known
-#              
-#       du -h ${ngal_features_5fold}
-#       echo $oudir_ab
-#       echo $oudir_reg
-#
-#        #-- ablation
-#        for fold in 0 1 2 3 4
-#        do
-#            echo "feature selection on " $fold ${cap}_${zcut}
-#            mpirun -np 5 python $ablation --data $ngal_features_5fold \
-#                         --output $oudir_ab --log $log_ablation \
-#                         --rank $fold --axfit $axfit1
-#        done      
-#
+for cap in SGC # NGC
+do
+    #for zcut in zhigh_racut all_racut ## only for NGC
+    for zcut in z3 z3seed
+    #for zcut in all low high z1 z2 z3 zhigh 
+    do
+       output_dir=${input_catn}
+       ngal_features_5fold=${output_dir}ngal_features_${cap}_${zcut}_${nside}.5r.npy
+
+       #-- define output dirs
+       oudir_ab=${output_dir}results/${cap}_${zcut}_${nside}/ablation/
+       oudir_reg=${output_dir}results/${cap}_${zcut}_${nside}/regression/            
+
+       #-- define output names
+       log_ablation=eboss_data.log
+       nn1=nn_ablation
+       nn2=nn_plain           
+       nn3=nn_known
+              
+       du -h ${ngal_features_5fold}
+       echo $oudir_ab
+       echo $oudir_reg
+
+        #-- ablation
+        for fold in 0 1 2 3 4
+        do
+            echo "feature selection on " $fold ${cap}_${zcut}
+            mpirun -np 5 python $ablation --data $ngal_features_5fold \
+                         --output $oudir_ab --log $log_ablation \
+                         --rank $fold --axfit $axfit1
+        done      
+
 #        echo 'regression on ' $fold ${cap}_${zcut}
 #       
 #       #-- regression with ablation
@@ -100,8 +103,8 @@ axfit1='0 1 2 3 4 5 6 8 9 10 11 12 13 14 17 18 19'
 #        #-- regression with known maps
 #        mpirun -np 5 python $nnfit --input $ngal_features_5fold \
 #                           --output ${oudir_reg}${nn3}/ --nside $nside --axfit $axfit0 
-# done        
-#done 
+ done        
+done 
 #
 #
 #
