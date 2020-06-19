@@ -18,12 +18,12 @@ pk=${HOME}/github/LSSutils/scripts/analysis/run_pk.py
 xi=${HOME}/github/LSSutils/scripts/analysis/run_xi.py
 pkracut=${HOME}/github/LSSutils/scripts/analysis/run_pk_racut.py
 
-nside=512
+nside=256
 nmesh=512
 dk=0.002
 boxsize=6600
 version=v7_2
-versiono=0.3
+versiono=0.5
 # known maps, depth, ebv, psfi skyi
 axfit0='0 2 5 13'
 # no w1 or depth-g maps 
@@ -38,26 +38,26 @@ systematics=${path_data}templates/SDSS_WISE_HI_imageprop_nside${nside}.h5
 
 # prepare for regression
 # 1 min
-# for cap in NGC SGC
-# do
-#     # project data and randoms to HEALPix
-#     data=${input_cato}eBOSS_QSO_full_${cap}_v7_2.dat.fits
-#     random=${input_cato}eBOSS_QSO_full_${cap}_v7_2.ran.fits
-    
-#     output_dir=${input_catn}
-
-#     slices='all zhigh low high z1 z2 z3'    
-#     du -h $data $random $systematics     
-#     echo $1 ${nside} ${version} ${versiono} ${output_dir} ${slices}
-#     python prepare_data.py -d ${data} -r ${random} -s ${systematics} -o ${output_dir} -n ${nside} -c ${cap} -sl ${slices}
-    
-# done
-
+#for cap in NGC SGC
+#do
+#    # project data and randoms to HEALPix
+#    data=${input_cato}eBOSS_QSO_full_${cap}_v7_2.dat.fits
+#    random=${input_cato}eBOSS_QSO_full_${cap}_v7_2.ran.fits
+#  
+#    output_dir=${input_catn}
+#
+#    slices='all zhigh low high z1 z2 z3'    
+#    du -h $data $random $systematics     
+#    echo $1 ${nside} ${version} ${versiono} ${output_dir} ${slices}
+#    python prepare_data.py -d ${data} -r ${random} -s ${systematics} -o ${output_dir} -n ${nside} -c ${cap} -sl ${slices}
+#  
+#done
+#
 # --- perform regression
 # 553 min
 for cap in NGC SGC
 do
-#    #for zcut in zhigh_racut all_racut ## only for NGC
+    #for zcut in zhigh_racut all_racut ## only for NGC
    for zcut in zhigh all low high z1 z2 z3  
    do
       output_dir=${input_catn}
@@ -102,7 +102,7 @@ do
                           --output ${oudir_reg}${nn3}/ --nside $nside --axfit $axfit0 
  done        
 done 
-#
+
 #
 #
 ## ---- reassignment
